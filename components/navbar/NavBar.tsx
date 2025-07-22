@@ -1,19 +1,12 @@
 "use client";
 
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs";
-
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
+import AuthDropdown from "../auth/oauth/auth-dropdown";
 
 const NavBar = () => {
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between w-full px-1 py-2 border-b-2  md:px-8 backdrop-blur-md ">
+    <header className="sticky top-0 z-50 flex items-center justify-between w-full px-1 py-1 border-b-2  md:px-8 backdrop-blur-md ">
       <Link href="/">
         <div className="flex items-center gap-3 ps-4">
           {/* <Image
@@ -26,15 +19,9 @@ const NavBar = () => {
           <span className="text-2xl font-bold tracking-wide  ">GRAFT</span>
         </div>
       </Link>
-      <div className="flex items-center h-16 gap-4 p-4">
+      <div className="flex items-center  gap-2">
         <ThemeToggle />
-        <SignedOut>
-          <SignInButton />
-          <SignUpButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        <AuthDropdown />
       </div>
     </header>
   );
