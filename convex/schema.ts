@@ -12,7 +12,15 @@ const applicationTables = {
     userId: v.id("users"),
     completed: v.boolean(),
     completedAt: v.optional(v.number()),
-  }),
+  }).index("by_user", ["userId"]),
+
+  plans: defineTable({
+    date: v.string(),
+    userId: v.id("users"),
+    planContent: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  }).index("by_user_date", ["userId", "date"]),
 };
 
 export default defineSchema({
