@@ -15,6 +15,7 @@ import { SignInWithGoogle } from "./SignInWithGoogle";
 import { api } from "@/convex/_generated/api";
 import { LogOut, Settings, User } from "lucide-react";
 import Image from "next/image";
+import { Skeleton } from "../../ui/skeleton";
 
 export default function AuthDropdown() {
   const [open, setOpen] = useState(false);
@@ -34,9 +35,7 @@ export default function AuthDropdown() {
   return (
     <div className="flex justify-center items-center">
       <AuthLoading>
-        <Button disabled>
-          <User size={32} className="rounded-full" />
-        </Button>
+        <Skeleton className="size-9 rounded-full animate-pulse" />
       </AuthLoading>
 
       <Unauthenticated>

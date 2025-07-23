@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 const ThemeToggle = () => {
   const { resolvedTheme, setTheme } = useTheme();
@@ -15,7 +16,7 @@ const ThemeToggle = () => {
   }, []);
 
   if (!mounted) {
-    return <div className="size-9" aria-hidden="true" />; // Placeholder to maintain layout
+    return <Skeleton className="size-9 animate-pulse rounded-full" aria-hidden="true" />; // Placeholder to maintain layout
   }
 
   const isDark = resolvedTheme === "dark";
@@ -36,7 +37,7 @@ const ThemeToggle = () => {
         transition={{ type: "spring", stiffness: 200, damping: 50 }}
         className="flex items-center justify-center "
       >
-        {isDark ? <Sun className="size-6 " /> : <Moon className="size-6 " />}
+        {isDark ? <Sun className="size-7 " /> : <Moon className="size-6 " />}
       </motion.span>
     </Button>
   );
