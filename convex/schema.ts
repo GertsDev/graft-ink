@@ -14,7 +14,7 @@ const schema = defineSchema({
     image: v.optional(v.string()),
     email: v.optional(v.string()),
     emailVerificationTime: v.optional(v.number()),
-  }).index("by_email", ["email"]),
+  }).index("email", ["email"]),
 
   numbers: defineTable({
     value: v.number(),
