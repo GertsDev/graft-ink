@@ -9,14 +9,6 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           prompt: "select_account",
         },
       },
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-        };
-      },
     }),
   ],
   callbacks: {
