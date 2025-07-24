@@ -16,6 +16,8 @@ import type {
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as plans from "../plans.js";
+import type * as tasks from "../tasks.js";
+import type * as timeEntries from "../timeEntries.js";
 import type * as users from "../users.js";
 
 /**
@@ -30,6 +32,8 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
   plans: typeof plans;
+  tasks: typeof tasks;
+  timeEntries: typeof timeEntries;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

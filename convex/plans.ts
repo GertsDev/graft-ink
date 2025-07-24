@@ -8,9 +8,7 @@ export const getPlan = query({
 
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("Not authenticated");
-    }
+    if (userId === null) throw new Error("Not authenticated");
 
     const plan = await ctx.db
       .query("plans")
@@ -29,9 +27,7 @@ export const upsertPlan = mutation({
 
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("Not authenticated");
-    }
+    if (userId === null) throw new Error("Not authenticated");
 
     // Check if a plan already exists for this user/date
     const existingPlan = await ctx.db

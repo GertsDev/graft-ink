@@ -5,15 +5,26 @@ import { v } from "convex/values";
 const applicationTables = {
   tasks: defineTable({
     title: v.string(),
-    topic: v.string(),
-    subtopic: v.string(),
+    topic: v.optional(v.string()),
+    subtopic: v.optional(v.string()),
     createdAt: v.number(),
     userId: v.id("users"),
-    completed: v.boolean(),
-    completedAt: v.optional(v.number()),
   })
     .index("by_user", ["userId"])
     .index("by topic", ["topic"]),
+
+  timeEntries: defineTable({
+    taskId: v.id("tasks"),
+    taskTitle: v.string(), // Denormalized
+    taskTopic: v.optional(v.string()), // Denormalized
+    taskSubtopic: v.optional(v.string()), // Denormalized
+    duration: v.number(),
+    startedAt: v.number(),
+    note: v.optional(v.string()),
+    userId: v.id("users"),
+  })
+    .index("by_task", ["taskId"])
+    .index("by_user_date", ["userId", "startedAt"]),
 
   plans: defineTable({
     date: v.string(),
@@ -22,16 +33,6 @@ const applicationTables = {
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
   }).index("by_user_date", ["userId", "date"]),
-
-  timeEntries: defineTable({
-    taskId: v.id("tasks"),
-    duration: v.number(),
-    startedAt: v.number(),
-    note: v.optional(v.string()),
-    userId: v.id("users"),
-  })
-    .index("by_task", ["taskId"])
-    .index("by_user_date", ["userId", "startedAt"]),
 };
 
 export default defineSchema({
