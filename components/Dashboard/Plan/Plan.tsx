@@ -38,11 +38,11 @@ const Plan = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 mx-auto min-w-100 min-h-96 ">
+    <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
       {/* Date Picker */}
       {/* Textarea */}
       <textarea
-        className="border-2 border-gray-300 rounded-md p-2 h-full w-full flex-1"
+        className="h-full w-full flex-1 rounded-md border-2 border-gray-300 p-2"
         id="plan"
         value={planContent}
         onChange={handleChange}
