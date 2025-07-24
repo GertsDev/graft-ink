@@ -26,7 +26,7 @@ const Plan = () => {
   const debouncedSave = useCallback(
     debounce((content: string) => {
       upsertPlan({ date: formattedDate, planContent: content });
-    }, 500),
+    }, 1500),
     [formattedDate, upsertPlan],
   );
 

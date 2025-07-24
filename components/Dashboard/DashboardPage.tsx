@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Plan from "./Plan/Plan";
+import Track from "./Track/Track";
 
 const DashboardPage = () => {
   return (
@@ -28,7 +29,7 @@ const DashboardPage = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="track-tab">
-          <div className="flex flex-1 flex-col">Content for Tab 1</div>
+          <div className="flex flex-1 flex-col"><Track/></div>
         </TabsContent>
         <TabsContent value="plan-tab">
           <div className="flex flex-1 flex-col">
