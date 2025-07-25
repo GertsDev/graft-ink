@@ -2,8 +2,20 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Plan from "./Plan/Plan";
 import Track from "./Track/Track";
+import { getAuth } from "@convex-dev/auth/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "../../convex/_generated/api";
 
-const DashboardPage = () => {
+export default async function DashboardPage() {
+  // const user = await  fetchQuery(api.users.getCurrentUser._args)
+  // const userId = user?.id;
+
+  /*  // Runs on the server → correct tab in HTML
+ const storedTab = userId
+ ? await fetchQuery(api.userSettings.getDashboardTab, { userId })
+ : null;
+const initialTab = storedTab ?? "track-tab"; */
+
   return (
     <div className="flex flex-1 flex-col">
       {" "}
@@ -29,7 +41,9 @@ const DashboardPage = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="track-tab">
-          <div className="flex flex-1 flex-col"><Track/></div>
+          <div className="flex flex-1 flex-col">
+            <Track />
+          </div>
         </TabsContent>
         <TabsContent value="plan-tab">
           <div className="flex flex-1 flex-col">
@@ -44,6 +58,4 @@ const DashboardPage = () => {
       </Tabs>
     </div>
   );
-};
-
-export default DashboardPage;
+}

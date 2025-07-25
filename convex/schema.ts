@@ -9,9 +9,10 @@ const applicationTables = {
     subtopic: v.optional(v.string()),
     createdAt: v.number(),
     userId: v.id("users"),
+    lastTab: v.string(),
   })
     .index("by_user", ["userId"])
-    .index("by topic", ["topic"]),
+    .index("by_topic", ["topic"]),
 
   timeEntries: defineTable({
     taskId: v.id("tasks"),
