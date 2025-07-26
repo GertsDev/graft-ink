@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { Button } from "@/_components/ui/button";
+import { Button } from "@/components/ui/button";
 import { AppleLogo } from "./logos/apple-logo";
 
 export function SignInWithApple() {

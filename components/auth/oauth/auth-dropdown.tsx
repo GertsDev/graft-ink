@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { useQuery } from "convex/react";
-import { Button } from "@/_components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/_components/ui/popover";
-import { Separator } from "@/_components/ui/separator";
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { SignInWithGoogle } from "./sign-in-with-google";
 import { api } from "@/convex/_generated/api";
 import { LogOut, Settings, User } from "lucide-react";

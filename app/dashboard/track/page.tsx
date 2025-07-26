@@ -3,9 +3,9 @@
 import React from "react";
 
 import { Edit3, Pin } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../../../_components/ui/card";
-import { Button } from "../../../_components/ui/button";
-import { Badge } from "../../../_components/ui/badge";
+import { Card, CardContent, CardHeader } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 
 const tasks = [
   {
