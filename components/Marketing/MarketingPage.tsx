@@ -2,10 +2,11 @@ import React from "react";
 
 const MarketingPage = () => {
   return (
-    <div className="flex flex-col  items-center mt-30 flex-1">
-      <div className="">
-        <h1 className="text-4xl font-bold ">Focus. Track. Achieve.</h1>
-        <p className="text-lg text-muted-foreground">Login to get started.</p>
+    <div className="mt-30 flex flex-1 flex-col items-center">
+      <div className="text-center">
+        <h1 className="mb-4 text-4xl font-bold">Focus. Track. Achieve.</h1>
+
+        <p className="text-muted-foreground text-lg">Login to get started.</p>
       </div>
     </div>
   );

@@ -1,37 +1,34 @@
-"use client"
+"use client";
 
-import { useMutation, useQuery } from "convex/react";
 import React from "react";
-import { api } from "../../../convex/_generated/api";
-import { Id } from "../../../convex/_generated/dataModel";
-import { Tabs, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Card, CardContent, CardHeader } from "../../ui/card";
-import { Edit3, Pin } from "lucide-react";
-import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
 
-// const tasks = [
-//   {
-//     title: "Diving into classes",
-//     time: "0m TODAY",
-//     tags: ["Programming", "OOP", "Classes"],
-//   },
-//   {
-//     title: "CV",
-//     time: "0m TODAY",
-//     tags: ["Interview"],
-//   },
-//   {
-//     title: "Hackathon Prepare",
-//     time: "45m TODAY",
-//     tags: ["Hackathon"],
-//   },
-//   {
-//     title: "React learning",
-//     time: "1h 30m TODAY",
-//     tags: ["React"],
-//   },
-// ];
+import { Edit3, Pin } from "lucide-react";
+import { Card, CardContent, CardHeader } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
+
+const tasks = [
+  {
+    title: "Diving into classes",
+    time: "0m TODAY",
+    tags: ["Programming", "OOP", "Classes"],
+  },
+  {
+    title: "CV",
+    time: "0m TODAY",
+    tags: ["Interview"],
+  },
+  {
+    title: "Hackathon Prepare",
+    time: "45m TODAY",
+    tags: ["Hackathon"],
+  },
+  {
+    title: "React learning",
+    time: "1h 30m TODAY",
+    tags: ["React"],
+  },
+];
 
 const formatTime = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
@@ -39,19 +36,19 @@ const formatTime = (minutes: number) => {
   return `${hours} ${mins}`;
 };
 
-const Track = () => {
-  const tasks = useQuery(api.tasks.getUserTaskWithTime) || [];
-  const addTime = useMutation(api.timeEntries.add);
-  const create = useMutation(api.tasks.createTask);
+export default function Track() {
+  // const tasks = useQuery(api.tasks.getUserTaskWithTime) || [];
+  // const addTime = useMutation(api.timeEntries.add);
+  // const create = useMutation(api.tasks.createTask);
 
-  const totalToday = tasks.reduce((sum, t) => sum + (t.todayTime || 0), 0);
+  // const totalToday = tasks.reduce((sum, t) => sum + (t.todayTime || 0), 0);
 
-  const handleAddTime = async (taskId: Id<"tasks">, duration: number) => {
-    addTime({ taskId, duration });
-  };
+  // const handleAddTime = async (taskId: Id<"tasks">, duration: number) => {
+  //   addTime({ taskId, duration });
+  // };
 
   return (
-    <div className="bg-background text-foreground min-h-screen w-screen p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
       {/* Summary Card */}
       <Card className="mt-6">
         <CardHeader className="flex flex-row items-start justify-between pb-2">
@@ -69,7 +66,7 @@ const Track = () => {
         </CardContent>
       </Card>
 
-      <Button className="bg-primary mt-2 ">Add card</Button>
+      <Button className="bg-primary mt-2">Add card</Button>
 
       {/* Task Grid */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -100,6 +97,4 @@ const Track = () => {
       </div>
     </div>
   );
-};
-
-export default Track;
+}

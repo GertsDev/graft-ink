@@ -32,16 +32,16 @@ const tasks = [
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8">
+    <div className="bg-background text-foreground min-h-screen p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <header className="flex items-start justify-between">
         <div>
-          <p className="font-hand text-sm text-muted-foreground">Dashboard</p>
+          <p className="font-hand text-muted-foreground text-sm">Dashboard</p>
           <h1 className="text-3xl font-bold tracking-tight">Graft</h1>
         </div>
         <div className="flex gap-2">
-          <div className="h-5 w-5 rounded-full border border-muted-foreground" />
-          <div className="h-5 w-5 rounded-full border border-muted-foreground" />
+          <div className="border-muted-foreground h-5 w-5 rounded-full border" />
+          <div className="border-muted-foreground h-5 w-5 rounded-full border" />
         </div>
       </header>
 
@@ -58,21 +58,15 @@ export default function DashboardPage() {
       <Card className="mt-6">
         <CardHeader className="flex flex-row items-start justify-between pb-2">
           <h2 className="text-2xl font-bold">2h 15m TODAY</h2>
-          <div className="text-right text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-right text-sm">
             <p>Hackathon Prepare: 45min</p>
             <p>React Learning: 1h 30min</p>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
-            <div
-              className="h-full bg-orange-500"
-              style={{ width: "33.33%" }}
-            />
-            <div
-              className="h-full bg-orange-400"
-              style={{ width: "66.67%" }}
-            />
+          <div className="bg-secondary flex h-2 w-full overflow-hidden rounded-full">
+            <div className="h-full bg-orange-500" style={{ width: "33.33%" }} />
+            <div className="h-full bg-orange-400" style={{ width: "66.67%" }} />
           </div>
         </CardContent>
       </Card>
@@ -82,12 +76,12 @@ export default function DashboardPage() {
         {tasks.map((task) => (
           <Card key={task.title} className="relative">
             <CardHeader className="pb-2">
-              <div className="absolute right-3 top-3 flex gap-2">
-                <Edit3 className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer" />
-                <Pin className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer" />
+              <div className="absolute top-3 right-3 flex gap-2">
+                <Edit3 className="text-muted-foreground hover:text-foreground h-4 w-4 cursor-pointer" />
+                <Pin className="text-muted-foreground hover:text-foreground h-4 w-4 cursor-pointer" />
               </div>
               <h3 className="font-semibold">{task.title}</h3>
-              <p className="text-sm text-muted-foreground">{task.time}</p>
+              <p className="text-muted-foreground text-sm">{task.time}</p>
             </CardHeader>
             <CardContent>
               <Button size="sm" variant="secondary" className="mb-3">

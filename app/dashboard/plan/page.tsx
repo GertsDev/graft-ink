@@ -1,3 +1,6 @@
+//app/dashboard/plan/page.tsx
+"use client";
+
 import React, { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "convex/react";

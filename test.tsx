@@ -1,24 +1,4 @@
-import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Plan from "./Plan/Plan";
-import Track from "./Track/Track";
-import { getAuth } from "@convex-dev/auth/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
-import { api } from "../../convex/_generated/api";
-
-export default async function DashboardPage() {
-  // const user = await  fetchQuery(api.users.getCurrentUser._args)
-  // const userId = user?.id;
-
-  /*  // Runs on the server → correct tab in HTML
- const storedTab = userId
- ? await fetchQuery(api.userSettings.getDashboardTab, { userId })
- : null;
-const initialTab = storedTab ?? "track-tab"; */
-
-  return (
-    <div className="flex flex-1 flex-col">
-      {" "}
+<div className="flex flex-1 flex-col">
       <Tabs defaultValue="tabs" className="flex flex-1 flex-col items-center">
         <TabsList className="h-auto rounded-none border-b bg-transparent p-0">
           <TabsTrigger
@@ -57,5 +37,3 @@ const initialTab = storedTab ?? "track-tab"; */
         </TabsContent>
       </Tabs>
     </div>
-  );
-}

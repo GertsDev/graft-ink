@@ -16,14 +16,18 @@ import { api } from "@/convex/_generated/api";
 import { LogOut, Settings, User } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "../../ui/skeleton";
+import { useRouter } from "next/navigation";
 
 export default function AuthDropdown() {
   const [open, setOpen] = useState(false);
   const { signOut } = useAuthActions();
+  const router = useRouter();
 
-  const handleSignOut = () => {
-    void signOut();
+  const handleSignOut = async () => {
+    await signOut();
     setOpen(false);
+    // Redirect to home page after sign out
+    router.push("/");
   };
 
   const handleSettings = () => {
@@ -33,25 +37,25 @@ export default function AuthDropdown() {
   };
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex items-center justify-center">
       <AuthLoading>
-        <Skeleton className="size-9 rounded-full animate-pulse" />
+        <Skeleton className="size-9 animate-pulse rounded-full" />
       </AuthLoading>
 
       <Unauthenticated>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="gap-2 text-md">
+            <Button variant="ghost" className="text-md gap-2">
               Sign In
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-64 p-4 rounded-xl shadow-lg mt-0"
+            className="mt-0 w-64 rounded-xl p-4 shadow-lg"
             align="end"
           >
             <div className="space-y-3">
               <div className="text-center">
-                <h3 className="font-semibold text-sm">
+                <h3 className="text-sm font-semibold">
                   Sign in to your account
                 </h3>
               </div>
@@ -59,7 +63,7 @@ export default function AuthDropdown() {
 
               <SignInWithGoogle />
 
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-muted-foreground text-center text-xs">
                 By signing up, you agree to our Terms of Service
               </p>
             </div>
@@ -111,10 +115,10 @@ function AuthenticatedDropdown({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-56 p-0 rounded-xl shadow-lg mt-0"
+        className="mt-0 w-56 rounded-xl p-0 shadow-lg"
         align="end"
       >
-        <div className="p-4 space-y-3">
+        <div className="space-y-3 p-4">
           <div className="flex items-center space-x-3">
             {currentUser?.image ? (
               <Image
@@ -125,15 +129,15 @@ function AuthenticatedDropdown({
                 className="h-10 w-10 rounded-full object-cover"
               />
             ) : (
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+              <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
                 <User className="h-5 w-5" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">
                 {currentUser?.name || "User"}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-muted-foreground truncate text-xs">
                 {currentUser?.email}
               </p>
             </div>
@@ -144,7 +148,7 @@ function AuthenticatedDropdown({
           <div className="space-y-1">
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2 h-9"
+              className="h-9 w-full justify-start gap-2"
               onClick={onSettings}
             >
               <Settings className="h-4 w-4" />
@@ -152,7 +156,7 @@ function AuthenticatedDropdown({
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2 h-9 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+              className="h-9 w-full justify-start gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
               onClick={onSignOut}
             >
               <LogOut className="h-4 w-4" />
