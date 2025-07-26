@@ -25,7 +25,7 @@ export function TabShell({ activeTab }: { activeTab: string }) {
     <Tabs
       value={activeTab}
       onValueChange={handleTabChange}
-      className="flex flex-1 flex-col items-center"
+      className="flex w-full flex-1 flex-col items-center "
     >
       <TabsList className="h-auto rounded-none border-b bg-transparent p-0">
         <TabsTrigger

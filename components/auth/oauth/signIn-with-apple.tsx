@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { AppleLogo } from "./logos/apple-logo";
@@ -9,7 +11,7 @@ export function SignInWithApple() {
       className="flex-1"
       variant="outline"
       type="button"
-      onClick={() => void signIn("apple", { redirectTo: "/dashboard" })}
+      onClick={() => void signIn("apple")}
     >
       <AppleLogo className="mr-2 h-4 w-4" /> Apple
     </Button>

@@ -20,10 +20,5 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       );
       console.log("Profile data:", profile);
     },
-    async redirect({ redirectTo }) {
-      // If a specific redirectTo was provided (like "/dashboard"), use it
-      // Otherwise default to dashboard
-      return redirectTo || "/dashboard";
-    },
   },
 });

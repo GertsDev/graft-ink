@@ -11,7 +11,8 @@ export default async function DashboardPage({
   const activeTab = resolvedSearchParams.tab ?? "track";
 
   return (
-
-    <TabShell activeTab={activeTab} />
+    <div className="">
+      <TabShell activeTab={activeTab} />
+    </div>
   );
 }

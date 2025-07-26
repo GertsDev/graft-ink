@@ -1,6 +1,6 @@
 import React from "react";
 
-const MarketingPage = () => {
+export default function MarketingPage() {
   return (
     <div className="mt-30 flex flex-1 flex-col items-center">
       <div className="text-center">
@@ -10,6 +10,4 @@ const MarketingPage = () => {
       </div>
     </div>
   );
-};
-
-export default MarketingPage;
+}
