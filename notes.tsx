@@ -1,10 +1,10 @@
 // app/dashboard/page.tsx
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/_components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/_components/ui/tabs";
+import { Button } from "@/_components/ui/button";
+import { Badge } from "@/_components/ui/badge";
 import { Edit3, Pin } from "lucide-react";
 
 const tasks = [

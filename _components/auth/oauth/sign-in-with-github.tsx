@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { Button } from "@/components/ui/button";
-import { GitHubLogo } from "./logos/GitHubLogo";
+import { Button } from "@/_components/ui/button";
+import { GitHubLogo } from "./logos/github-logo";
 
 export function SignInWithGitHub() {
   const { signIn } = useAuthActions();

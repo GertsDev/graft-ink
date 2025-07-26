@@ -1,4 +1,4 @@
-import MarketingPage from "../components/marketing/marketing-page";
+import MarketingPage from "../_components/marketing/marketing-page";
 
 export default function Home() {
   return (
