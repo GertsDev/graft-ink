@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { SignInWithGoogle } from "./SignInWithGoogle";
+import { SignInWithGoogle } from "./sign-in-with-google";
 import { api } from "@/convex/_generated/api";
 import { LogOut, Settings, User } from "lucide-react";
 import Image from "next/image";

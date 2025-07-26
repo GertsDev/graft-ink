@@ -1,4 +1,4 @@
-import { SignInWithOAuth } from "./oauth/SignInWithOAuth";
+import { SignInWithOAuth } from "./oauth/sign-in-with-oauth";
 
 
 export function SignInForm() {

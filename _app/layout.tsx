@@ -4,7 +4,7 @@ import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 import { ThemeProvider } from "next-themes";
-import { ConvexClientProvider } from "./ConvexClientProvider";
+import { ConvexClientProvider } from "./convex-client-provider";
 import NavBar from "../components/navbar/NavBar";
 
 const geistSans = Geist({
