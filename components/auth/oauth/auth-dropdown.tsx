@@ -156,7 +156,7 @@ function AuthenticatedDropdown({
             </Button>
             <Button
               variant="ghost"
-              className="h-9 w-full justify-start gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+              className="h-9 w-full justify-start gap-2 text-destructive hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
               onClick={onSignOut}
             >
               <LogOut className="h-4 w-4" />

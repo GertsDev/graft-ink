@@ -1,11 +1,12 @@
 //app/dashboard/plan/page.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import debounce from "lodash.debounce";
+
+import { useDebounce } from "../../hooks/use-debounce";
 
 const Plan = () => {
   // eslint-disable-next-line
@@ -26,12 +27,9 @@ const Plan = () => {
   }, [fetchedPlan]);
 
   // Debounce DB writes; useCallback ensures latest date/upsertPlan in closure
-  const debouncedSave = useCallback(
-    debounce((content: string) => {
-      upsertPlan({ date: formattedDate, planContent: content });
-    }, 1500),
-    [formattedDate, upsertPlan],
-  );
+  const debouncedSave = useDebounce((content: string) => {
+    upsertPlan({ date: formattedDate, planContent: content });
+  }, 1200);
 
   // Handle textarea changes
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
