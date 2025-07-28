@@ -5,8 +5,6 @@ export function useDebounce<TArgs extends unknown[]>(
   delay: number,
 ): (...args: TArgs) => void {
   const callbackRef = useRef(callback);
-  console.log("🚀 ~ useDebounce ~ callbackRef:", callbackRef);
-  console.log("🚀 ~ useDebounce ~ callback:", callback);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update the callback ref whenever callback changes

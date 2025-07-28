@@ -8,7 +8,7 @@ export function SignInWithGoogle() {
   const { signIn } = useAuthActions();
   return (
     <Button
-      onClick={() => void signIn("google")}
+      onClick={() => void signIn("google", { redirectTo: "/dashboard" })}
       variant="ghost"
       className="h-9 w-full gap-2"
     >

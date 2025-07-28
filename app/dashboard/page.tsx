@@ -1,5 +1,5 @@
 //app/dashboard/page.tsx
-import React from "react";
+import React, { Suspense } from "react";
 import { TabShell } from "./tab-shell";
 
 export default async function DashboardPage({
@@ -12,7 +12,9 @@ export default async function DashboardPage({
 
   return (
     <div className="">
-      <TabShell activeTab={activeTab} />
+      <Suspense fallback={<div>Loading dashboard...</div>}>
+        <TabShell activeTab={activeTab} />
+      </Suspense>
     </div>
   );
 }

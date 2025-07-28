@@ -63,7 +63,7 @@ export const getUserTaskWithTime = query({
           .filter((e) => e.startedAt >= todayStart)
           .reduce((sum, e) => sum + e.duration, 0);
 
-        return { ...tasks, totalTime, todayTime };
+        return { ...task, totalTime, todayTime };
       }),
     );
   },

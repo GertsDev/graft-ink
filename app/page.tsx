@@ -1,3 +1,4 @@
+// app/page.tsx
 import MarketingPage from "../components/marketing/marketing-page";
 
 export default function Home() {

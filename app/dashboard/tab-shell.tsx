@@ -5,8 +5,21 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
-import Plan from "./plan/page";
-import Track from "./track/page";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
+
+// Dynamically import the page components to avoid SSR issues
+const PlanPage = dynamic(() => import("./plan/page"), {
+  loading: () => <div>Loading...</div>,
+});
+
+const TrackPage = dynamic(() => import("./track/page"), {
+  loading: () => <div>Loading...</div>,
+});
+
+const AnalyzePage = dynamic(() => import("./analyze/page"), {
+  loading: () => <div>Loading...</div>,
+});
 
 export function TabShell({ activeTab }: { activeTab: string }) {
   const searchParams = useSearchParams();
@@ -25,7 +38,7 @@ export function TabShell({ activeTab }: { activeTab: string }) {
     <Tabs
       value={activeTab}
       onValueChange={handleTabChange}
-      className="flex w-full flex-1 flex-col items-center "
+      className="flex w-full flex-1 flex-col items-center"
     >
       <TabsList className="h-auto rounded-none border-b bg-transparent p-0">
         <TabsTrigger
@@ -50,18 +63,24 @@ export function TabShell({ activeTab }: { activeTab: string }) {
 
       <TabsContent value="track">
         <div className="flex flex-1 flex-col">
-          <Track />
+          <Suspense fallback={<div>Loading...</div>}>
+            <TrackPage />
+          </Suspense>
         </div>
       </TabsContent>
       <TabsContent value="plan">
         <div className="flex flex-1 flex-col">
-          <Plan />
+          <Suspense fallback={<div>Loading...</div>}>
+            <PlanPage />
+          </Suspense>
         </div>
       </TabsContent>
       <TabsContent value="analyze">
-        <p className="text-muted-foreground p-4 text-center text-xs">
-          Content for Tab 3
-        </p>
+        <div className="flex flex-1 flex-col">
+          <Suspense fallback={<div>Loading...</div>}>
+            <AnalyzePage />
+          </Suspense>
+        </div>
       </TabsContent>
     </Tabs>
   );
