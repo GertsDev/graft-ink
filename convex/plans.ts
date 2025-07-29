@@ -5,7 +5,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 // Fetch a plan for a specific user and date
 export const getPlan = query({
   args: { date: v.string() },
-
+  returns: v.string(),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) return "";
@@ -24,7 +24,7 @@ export const getPlan = query({
 // Upsert (create or update) a plan for a specific date
 export const upsertPlan = mutation({
   args: { date: v.string(), planContent: v.string() },
-
+  returns: v.null(),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
@@ -52,5 +52,6 @@ export const upsertPlan = mutation({
         createdAt: Date.now(),
       });
     }
+    return null;
   },
 });
