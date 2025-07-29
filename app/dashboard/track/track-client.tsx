@@ -41,20 +41,20 @@ export default function TrackClient({ preloadedTasks }: Props) {
     (
       current: TaskWithTime[],
       action:
-        | { type: 'addTime'; taskId: string; duration: number }
-        | { type: 'addTask'; task: TaskWithTime }
-        | { type: 'deleteTask'; taskId: Id<"tasks"> }
+        | { type: "addTime"; taskId: string; duration: number }
+        | { type: "addTask"; task: TaskWithTime }
+        | { type: "deleteTask"; taskId: Id<"tasks"> },
     ) => {
       switch (action.type) {
-        case 'addTime':
+        case "addTime":
           return current.map((t: TaskWithTime) =>
             t.id === action.taskId
               ? { ...t, todayTime: (t.todayTime ?? 0) + action.duration }
               : t,
           );
-        case 'addTask':
+        case "addTask":
           return [...current, action.task];
-        case 'deleteTask':
+        case "deleteTask":
           return current.filter((t: TaskWithTime) => t._id !== action.taskId);
         default:
           return current;
@@ -74,7 +74,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
 
   const handleAddTime = (taskId: Id<"tasks">, duration: number) => {
     startTransition(() => {
-      setOptimisticTasks({ type: 'addTime', taskId: taskId, duration });
+      setOptimisticTasks({ type: "addTime", taskId: taskId, duration });
       addTime({ taskId, duration });
     });
   };
@@ -95,7 +95,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
         todayTime: 0,
       };
 
-      setOptimisticTasks({ type: 'addTask', task: tempTask });
+      setOptimisticTasks({ type: "addTask", task: tempTask });
 
       try {
         await createTask({
@@ -113,7 +113,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
 
   const handleDeleteTask = (taskId: Id<"tasks">) => {
     startTransition(() => {
-      setOptimisticTasks({ type: 'deleteTask', taskId });
+      setOptimisticTasks({ type: "deleteTask", taskId });
       deleteTask({ taskId });
     });
   };
@@ -131,7 +131,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
   ];
 
   return (
-    <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
       {/* Daily Summary Card */}
       <Card className="mt-6">
         <CardHeader className="flex flex-row items-start justify-between pb-2">
@@ -195,7 +195,10 @@ export default function TrackClient({ preloadedTasks }: Props) {
               />
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleCreateTask} disabled={!newTaskTitle.trim() || isPending}>
+              <Button
+                onClick={handleCreateTask}
+                disabled={!newTaskTitle.trim() || isPending}
+              >
                 Create Task
               </Button>
               <Button
@@ -214,7 +217,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
       )}
 
       {/* Tasks List */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {optimisticTasks.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-center text-gray-500">

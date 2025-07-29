@@ -8,7 +8,7 @@ export const getPlan = query({
 
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not authenticated");
+    if (userId === null) return "";
 
     const plan = await ctx.db
       .query("plans")

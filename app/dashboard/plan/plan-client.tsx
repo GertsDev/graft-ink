@@ -3,7 +3,7 @@
 
 import React, { useRef, useState } from "react";
 import { format } from "date-fns";
-import { useMutation, usePreloadedQuery, useQuery } from "convex/react";
+import { useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 import { useDebounce } from "../../hooks/use-debounce";
@@ -34,7 +34,7 @@ const PlanClient = ({
   };
 
   return (
-    <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
       {/* Date Picker */}
       {/* Textarea */}
       <textarea

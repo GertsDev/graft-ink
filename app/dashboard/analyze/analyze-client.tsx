@@ -22,11 +22,17 @@ interface AnalyzeClientProps {
   >;
 }
 
-export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientProps) {
-  const timeEntries = usePreloadedQuery(preloadedTimeEntries) as Record<string, GroupedEntries> ?? {};
+export default function AnalyzeClient({
+  preloadedTimeEntries,
+}: AnalyzeClientProps) {
+  const timeEntries =
+    (usePreloadedQuery(preloadedTimeEntries) as Record<
+      string,
+      GroupedEntries
+    >) ?? {};
 
   const analytics = useMemo(() => {
-    const entries = Object.values(timeEntries).flatMap(item => item.entries);
+    const entries = Object.values(timeEntries).flatMap((item) => item.entries);
 
     if (entries.length === 0) {
       return {
@@ -43,34 +49,46 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
     const averagePerDay = Math.round(totalTime / 7);
 
     // Group by task title and calculate totals
-    const taskTotals = entries.reduce((acc, entry) => {
-      acc[entry.taskTitle] = (acc[entry.taskTitle] || 0) + entry.duration;
-      return acc;
-    }, {} as Record<string, number>);
+    const taskTotals = entries.reduce(
+      (acc, entry) => {
+        acc[entry.taskTitle] = (acc[entry.taskTitle] || 0) + entry.duration;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const topTasks = Object.entries(taskTotals)
-      .sort(([,a], [,b]) => (b as number) - (a as number))
+      .sort(([, a], [, b]) => (b as number) - (a as number))
       .slice(0, 5)
       .map(([task, time]) => ({ task: task as string, time: time as number }));
 
     // Group by topic
-    const topicTotals = entries.reduce((acc, entry) => {
-      const topic = entry.taskTopic || "Uncategorized";
-      acc[topic] = (acc[topic] || 0) + entry.duration;
-      return acc;
-    }, {} as Record<string, number>);
+    const topicTotals = entries.reduce(
+      (acc, entry) => {
+        const topic = entry.taskTopic || "Uncategorized";
+        acc[topic] = (acc[topic] || 0) + entry.duration;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const topTopics = Object.entries(topicTotals)
-      .sort(([,a], [,b]) => (b as number) - (a as number))
+      .sort(([, a], [, b]) => (b as number) - (a as number))
       .slice(0, 5)
-      .map(([topic, time]) => ({ topic: topic as string, time: time as number }));
+      .map(([topic, time]) => ({
+        topic: topic as string,
+        time: time as number,
+      }));
 
     // Daily breakdown
-    const dailyTotals = entries.reduce((acc, entry) => {
-      const date = new Date(entry.startedAt).toDateString();
-      acc[date] = (acc[date] || 0) + entry.duration;
-      return acc;
-    }, {} as Record<string, number>);
+    const dailyTotals = entries.reduce(
+      (acc, entry) => {
+        const date = new Date(entry.startedAt).toDateString();
+        acc[date] = (acc[date] || 0) + entry.duration;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const dailyBreakdown = Object.entries(dailyTotals)
       .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
@@ -97,10 +115,10 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -109,7 +127,8 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
       <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
         <Card>
           <CardContent className="p-6 text-center text-gray-500">
-            No time entries found for the last 7 days. Start tracking your time to see analytics here.
+            No time entries found for the last 7 days. Start tracking your time
+            to see analytics here.
           </CardContent>
         </Card>
       </div>
@@ -117,15 +136,19 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
   }
 
   return (
-    <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Total Time (7 days)</h3>
+            <h3 className="text-sm font-medium text-gray-500">
+              Total Time (7 days)
+            </h3>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatTime(analytics.totalTime)}</p>
+            <p className="text-2xl font-bold">
+              {formatTime(analytics.totalTime)}
+            </p>
           </CardContent>
         </Card>
 
@@ -134,17 +157,21 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
             <h3 className="text-sm font-medium text-gray-500">Daily Average</h3>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatTime(analytics.averagePerDay)}</p>
+            <p className="text-2xl font-bold">
+              {formatTime(analytics.averagePerDay)}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Consistency Score</h3>
+            <h3 className="text-sm font-medium text-gray-500">
+              Consistency Score
+            </h3>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{analytics.productivityScore}%</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="mt-1 text-xs text-gray-500">
               Based on days worked this week
             </p>
           </CardContent>
@@ -161,7 +188,9 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
             {analytics.topTasks.map(({ task, time }, index) => (
               <div key={task} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    #{index + 1}
+                  </span>
                   <span className="font-medium">{task}</span>
                 </div>
                 <div className="text-right">
@@ -187,9 +216,9 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
               <div key={topic} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="h-3 w-3 rounded-full"
                     style={{
-                      backgroundColor: `hsl(${(index * 137.5) % 360}, 50%, 50%)`
+                      backgroundColor: `hsl(${(index * 137.5) % 360}, 50%, 50%)`,
                     }}
                   />
                   <span className="font-medium">{topic}</span>
@@ -214,18 +243,23 @@ export default function AnalyzeClient({ preloadedTimeEntries }: AnalyzeClientPro
         <CardContent>
           <div className="space-y-2">
             {analytics.dailyBreakdown.map(({ date, time }) => (
-              <div key={date} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div
+                key={date}
+                className="flex items-center justify-between border-b border-gray-100 py-2 last:border-b-0"
+              >
                 <span className="font-medium">{formatDate(date)}</span>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 max-w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2 max-w-24 flex-1 overflow-hidden rounded-full bg-gray-200">
                     <div
                       className="h-full bg-blue-500"
                       style={{
-                        width: `${Math.min(100, (time / Math.max(...analytics.dailyBreakdown.map(d => d.time))) * 100)}%`
+                        width: `${Math.min(100, (time / Math.max(...analytics.dailyBreakdown.map((d) => d.time))) * 100)}%`,
                       }}
                     />
                   </div>
-                  <span className="font-semibold text-sm">{formatTime(time)}</span>
+                  <span className="text-sm font-semibold">
+                    {formatTime(time)}
+                  </span>
                 </div>
               </div>
             ))}

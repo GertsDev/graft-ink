@@ -5,7 +5,7 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 import { ThemeProvider } from "next-themes";
 import { ConvexClientProvider } from "./convex-client-provider";
-import NavBar from "../components/navbar/navbar";
+import NavBar, { MobileBottomTabs } from "../components/navbar/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +45,7 @@ export default function RootLayout({
             <ConvexClientProvider>
               <NavBar />
               {children}
+              <MobileBottomTabs />
             </ConvexClientProvider>
           </ThemeProvider>
         </body>
