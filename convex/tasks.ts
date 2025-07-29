@@ -39,6 +39,30 @@ export const deleteTask = mutation({
   },
 });
 
+// Update a task's title/topic/subtopic
+export const updateTask = mutation({
+  args: {
+    taskId: v.id("tasks"),
+    title: v.string(),
+    topic: v.optional(v.string()),
+    subtopic: v.optional(v.string()),
+  },
+
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const task = await ctx.db.get(args.taskId);
+    if (!task || task.userId !== userId) throw new Error("Invalid task");
+
+    await ctx.db.patch(args.taskId, {
+      title: args.title,
+      topic: args.topic,
+      subtopic: args.subtopic,
+    });
+  },
+});
+
 // Get user's active tasks with aggregated time (no completed filtering)
 export const getUserTaskWithTime = query({
   handler: async (ctx) => {

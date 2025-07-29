@@ -3,11 +3,11 @@
 
 import { useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useOptimistic, useTransition, useState } from "react";
+import { useOptimistic, useTransition, useState, useEffect } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { PenLine, Trash2 } from "lucide-react";
+import { PenLine, Trash2, Check } from "lucide-react";
 import { useDashboardData } from "../dashboard-context";
 
 interface TaskWithTime {
@@ -36,6 +36,7 @@ export default function TrackClient() {
   const addTime = useMutation(api.timeEntries.add);
   const createTask = useMutation(api.tasks.createTask);
   const deleteTask = useMutation(api.tasks.deleteTask);
+  const updateTask = useMutation(api.tasks.updateTask);
 
   const [optimisticTasks, setOptimisticTasks] = useOptimistic(
     tasks,
@@ -44,7 +45,13 @@ export default function TrackClient() {
       action:
         | { type: "addTime"; taskId: string; duration: number }
         | { type: "addTask"; task: TaskWithTime }
-        | { type: "deleteTask"; taskId: Id<"tasks"> },
+        | { type: "deleteTask"; taskId: Id<"tasks"> }
+        | {
+            type: "updateTask";
+            taskId: Id<"tasks">;
+            title: string;
+            topic?: string | undefined;
+          },
     ) => {
       switch (action.type) {
         case "addTime":
@@ -57,6 +64,12 @@ export default function TrackClient() {
           return [...current, action.task];
         case "deleteTask":
           return current.filter((t: TaskWithTime) => t._id !== action.taskId);
+        case "updateTask":
+          return current.map((t: TaskWithTime) =>
+            t._id === action.taskId
+              ? { ...t, title: action.title, topic: action.topic }
+              : t,
+          );
         default:
           return current;
       }
@@ -67,6 +80,36 @@ export default function TrackClient() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTopic, setNewTaskTopic] = useState("");
   const [showAddTask, setShowAddTask] = useState(false);
+  const [timeDurations, setTimeDurations] = useState<number[]>(() => {
+    if (typeof window === "undefined") return [15, 30, 45];
+    try {
+      const stored = window.localStorage.getItem("timeDurations");
+      if (stored) {
+        const parsed = JSON.parse(stored) as number[];
+        if (
+          Array.isArray(parsed) &&
+          parsed.every((n) => typeof n === "number" && n > 0)
+        ) {
+          return parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return [15, 30, 45];
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "timeDurations",
+        JSON.stringify(timeDurations),
+      );
+    }
+  }, [timeDurations]);
+  const [tempDurations, setTempDurations] = useState<string[]>([]);
+  const [tempTitle, setTempTitle] = useState<string>("");
+  const [tempTopic, setTempTopic] = useState<string>("");
   const [openEditTaskId, setOpenEditTaskId] = useState<Id<"tasks"> | null>(
     null,
   );
@@ -129,11 +172,32 @@ export default function TrackClient() {
     return h ? `${h}h ${m}m` : `${m}m`;
   };
 
-  const timeButtons = [
-    { label: "15m", duration: 15 },
-    { label: "30m", duration: 30 },
-    { label: "45m", duration: 45 },
-  ];
+  const timeButtons = timeDurations.map((d) => ({
+    label: `${d}m`,
+    duration: d,
+  }));
+
+  const handleTempDurationChange = (index: number, value: string) => {
+    // Keep only digits to ensure numeric input but allow empty string for editing
+    const sanitized = value.replace(/[^0-9]/g, "");
+    setTempDurations((prev) =>
+      prev.map((d, i) => (i === index ? sanitized : d)),
+    );
+  };
+
+  const applyDurations = () => {
+    const nums = tempDurations.map((d) => parseInt(d, 10));
+    if (nums.some((n) => isNaN(n) || n < 1)) {
+      return; // Should be disabled already, just a safeguard
+    }
+    setTimeDurations(nums);
+    setOpenEditTaskId(null);
+  };
+
+  const isTempDurationsValid = tempDurations.every((d) => {
+    const n = parseInt(d, 10);
+    return !isNaN(n) && n > 0;
+  });
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
@@ -235,50 +299,134 @@ export default function TrackClient() {
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold">{task.title}</h3>
-                    {task.topic && (
-                      <p className="text-sm text-gray-500">{task.topic}</p>
+                    {openEditTaskId === task._id ? (
+                      <>
+                        <input
+                          type="text"
+                          value={tempTitle}
+                          onChange={(e) => setTempTitle(e.target.value)}
+                          className="w-full rounded-md border px-2 py-1 text-base font-semibold"
+                          placeholder="Title"
+                        />
+                        <input
+                          type="text"
+                          value={tempTopic}
+                          onChange={(e) => setTempTopic(e.target.value)}
+                          className="mt-1 w-full rounded-md border px-2 py-1 text-sm"
+                          placeholder="Topic (optional)"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="font-semibold">{task.title}</h3>
+                        {task.topic && (
+                          <p className="text-sm text-gray-500">{task.topic}</p>
+                        )}
+                      </>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    {openEditTaskId === task._id && (
+                    {openEditTaskId === task._id ? (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Delete task"
+                          onClick={() => handleDeleteTask(task._id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Apply changes"
+                          onClick={() => {
+                            if (!isTempDurationsValid || !tempTitle.trim())
+                              return;
+                            if (openEditTaskId) {
+                              startTransition(() => {
+                                setOptimisticTasks({
+                                  type: "updateTask",
+                                  taskId: openEditTaskId,
+                                  title: tempTitle.trim(),
+                                  topic: tempTopic.trim() || undefined,
+                                });
+                                updateTask({
+                                  taskId: openEditTaskId,
+                                  title: tempTitle.trim(),
+                                  topic: tempTopic.trim() || undefined,
+                                });
+                              });
+                            }
+                            applyDurations();
+                          }}
+                          disabled={!isTempDurationsValid || !tempTitle.trim()}
+                          title={
+                            isTempDurationsValid && tempTitle.trim()
+                              ? "Apply changes"
+                              : "Complete all fields correctly"
+                          }
+                        >
+                          <Check
+                            className={
+                              "h-4 w-4 " +
+                              (isTempDurationsValid && tempTitle.trim()
+                                ? "text-green-600"
+                                : "text-gray-400")
+                            }
+                          />
+                        </Button>
+                      </>
+                    ) : (
                       <Button
                         variant="ghost"
                         size="icon"
-                        aria-label="Delete task"
-                        onClick={() => handleDeleteTask(task._id)}
+                        aria-label="Edit task"
+                        onClick={() => {
+                          setTempDurations(timeDurations.map(String));
+                          setTempTitle(task.title);
+                          setTempTopic(task.topic ?? "");
+                          setOpenEditTaskId(task._id);
+                        }}
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <PenLine className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Edit task"
-                      onClick={() =>
-                        setOpenEditTaskId(
-                          openEditTaskId === task._id ? null : task._id,
-                        )
-                      }
-                    >
-                      <PenLine className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
-                    {timeButtons.map((btn) => (
-                      <Button
-                        key={btn.label}
-                        size="sm"
-                        onClick={() => handleAddTime(task._id, btn.duration)}
-                        disabled={isPending}
-                      >
-                        +{btn.label}
-                      </Button>
-                    ))}
+                    {openEditTaskId === task._id
+                      ? tempDurations.map((dur, idx) => (
+                          <input
+                            key={idx}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={dur}
+                            onChange={(e) =>
+                              handleTempDurationChange(
+                                idx,
+                                e.currentTarget.value,
+                              )
+                            }
+                            className="w-16 appearance-none rounded-md border px-2 py-1 text-center"
+                          />
+                        ))
+                      : timeButtons.map((btn) => (
+                          <Button
+                            key={btn.label}
+                            size="sm"
+                            onClick={() =>
+                              handleAddTime(task._id, btn.duration)
+                            }
+                            disabled={isPending}
+                          >
+                            +{btn.label}
+                          </Button>
+                        ))}
                   </div>
                   <div className="text-right text-sm">
                     <p className="font-medium">
