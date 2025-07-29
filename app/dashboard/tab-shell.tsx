@@ -1,34 +1,24 @@
 // app/dashboard/tab-shell.tsx
 "use client";
 
-import { DashboardPageProps } from "./types";
 import TrackClient from "./track/track-client";
 import PlanClient from "./plan/plan-client";
 import AnalyzeClient from "./analyze/analyze-client";
+import { useDashboardData } from "./dashboard-context";
 
-export function TabShell({
-  activeTab,
-  preloadedTasks,
-  preloadedTimeEntries,
-}: DashboardPageProps & { activeTab: string }) {
-  console.time("dashboard route total");
-  
+export function TabShell({ activeTab }: { activeTab: string }) {
+  const { preloadedTasks, preloadedTimeEntries } = useDashboardData();
+
   const renderContent = () => {
     switch (activeTab) {
       case "track":
-        return preloadedTasks ? (
-          <TrackClient preloadedTasks={preloadedTasks} />
-        ) : null;
+        return preloadedTasks ? <TrackClient /> : null;
       case "plan":
         return <PlanClient />;
       case "analyze":
-        return preloadedTimeEntries ? (
-          <AnalyzeClient preloadedTimeEntries={preloadedTimeEntries} />
-        ) : null;
+        return preloadedTimeEntries ? <AnalyzeClient /> : null;
       default:
-        return preloadedTasks ? (
-          <TrackClient preloadedTasks={preloadedTasks} />
-        ) : null;
+        return preloadedTasks ? <TrackClient /> : null;
     }
   };
 

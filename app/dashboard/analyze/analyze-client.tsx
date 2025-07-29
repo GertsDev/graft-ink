@@ -3,7 +3,7 @@
 import { usePreloadedQuery } from "convex/react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { useMemo, useState } from "react";
-import { PreloadedQuery } from "../types";
+import { useDashboardData } from "../dashboard-context";
 
 interface TimeEntry {
   taskTitle: string;
@@ -17,10 +17,6 @@ interface GroupedEntries {
   entries: TimeEntry[];
 }
 
-interface AnalyzeClientProps {
-  preloadedTimeEntries: PreloadedQuery;
-}
-
 type TimePeriod = "today" | "yesterday" | "week" | "month";
 
 interface DayData {
@@ -29,9 +25,13 @@ interface DayData {
   total: number;
 }
 
-export default function AnalyzeClient({
-  preloadedTimeEntries,
-}: AnalyzeClientProps) {
+export default function AnalyzeClient() {
+  const { preloadedTimeEntries } = useDashboardData();
+
+  if (!preloadedTimeEntries) {
+    throw new Error("AnalyzeClient rendered without preloadedTimeEntries");
+  }
+
   const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
 

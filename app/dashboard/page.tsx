@@ -3,6 +3,7 @@ import React from "react";
 import { preloadQuery } from "convex/nextjs";
 import { api } from "../../convex/_generated/api";
 import { TabShell } from "./tab-shell";
+import { DashboardDataProvider } from "./dashboard-context";
 
 export default async function DashboardPage({
   searchParams,
@@ -15,20 +16,20 @@ export default async function DashboardPage({
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const [preloadedTasks, preloadedTimeEntries] =
-    await Promise.all([
-      preloadQuery(api.tasks.getUserTaskWithTime),
-      preloadQuery(api.timeEntries.getByRange, {
-        start: weekAgo.getTime(),
-        end: now.getTime(),
-      }),
-    ]);
+  const [preloadedTasks, preloadedTimeEntries] = await Promise.all([
+    preloadQuery(api.tasks.getUserTaskWithTime),
+    preloadQuery(api.timeEntries.getByRange, {
+      start: weekAgo.getTime(),
+      end: now.getTime(),
+    }),
+  ]);
 
   return (
-    <TabShell
-      activeTab={activeTab}
+    <DashboardDataProvider
       preloadedTasks={preloadedTasks}
       preloadedTimeEntries={preloadedTimeEntries}
-    />
+    >
+      <TabShell activeTab={activeTab} />
+    </DashboardDataProvider>
   );
 }

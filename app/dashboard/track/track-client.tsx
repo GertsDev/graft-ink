@@ -7,7 +7,7 @@ import { useOptimistic, useTransition, useState } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { PreloadedQuery } from "../types";
+import { useDashboardData } from "../dashboard-context";
 
 interface TaskWithTime {
   _id: Id<"tasks">;
@@ -22,13 +22,15 @@ interface TaskWithTime {
   todayTime?: number;
 }
 
-interface Props {
-  preloadedTasks: PreloadedQuery;
-}
+export default function TrackClient() {
+  const { preloadedTasks } = useDashboardData();
 
-export default function TrackClient({ preloadedTasks }: Props) {
-  // Hydrate the server-fetched data on the client
-  const tasks: TaskWithTime[] = usePreloadedQuery(preloadedTasks) ?? [];
+  if (!preloadedTasks) {
+    // This component should only be rendered when data is available.
+    throw new Error("TrackClient rendered without preloadedTasks");
+  }
+
+  const tasks = usePreloadedQuery(preloadedTasks) as TaskWithTime[];
 
   const addTime = useMutation(api.timeEntries.add);
   const createTask = useMutation(api.tasks.createTask);
