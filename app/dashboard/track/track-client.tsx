@@ -125,7 +125,7 @@ export default function TrackClient({ preloadedTasks }: Props) {
   const timeButtons = [
     { label: "15m", duration: 15 },
     { label: "30m", duration: 30 },
-    { label: "1h", duration: 60 },
+    { label: "45m", duration: 45 },
   ];
 
   return (

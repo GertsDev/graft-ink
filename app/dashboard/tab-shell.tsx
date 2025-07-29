@@ -11,6 +11,8 @@ export function TabShell({
   preloadedTasks,
   preloadedTimeEntries,
 }: DashboardPageProps & { activeTab: string }) {
+  console.time("dashboard route total");
+  
   const renderContent = () => {
     switch (activeTab) {
       case "track":

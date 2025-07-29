@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 import React from "react";
 import { preloadQuery } from "convex/nextjs";
 import { api } from "../../convex/_generated/api";
