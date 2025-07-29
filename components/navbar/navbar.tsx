@@ -7,6 +7,7 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 const DesktopDashboardTabs = () => {
   const pathname = usePathname();
+  console.log("🚀 ~ DesktopDashboardTabs ~ pathname:", pathname)
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -26,7 +27,7 @@ const DesktopDashboardTabs = () => {
     }`;
 
   return (
-    <nav className="flex gap-4">
+    <nav className="flex gap-4  ">
       <span
         className={tabClass("track")}
         onClick={() => handleClick("track")}
@@ -79,7 +80,7 @@ export const MobileBottomTabs = () => {
     }`;
 
   return (
-    <nav className="bg-background fixed right-0 bottom-0 left-0 z-50 flex justify-around border-t md:hidden">
+    <nav className="bg-background fixed right-0 bottom-0 left-0 z-50 flex justify-around border-t md:hidden h-14">
       <button
         className={tabClass("track")}
         onClick={() => handleClick("track")}

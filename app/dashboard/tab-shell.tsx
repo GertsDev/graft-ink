@@ -9,7 +9,6 @@ import AnalyzeClient from "./analyze/analyze-client";
 export function TabShell({
   activeTab,
   preloadedTasks,
-  preloadedPlan,
   preloadedTimeEntries,
 }: DashboardPageProps & { activeTab: string }) {
   const renderContent = () => {
@@ -19,9 +18,7 @@ export function TabShell({
           <TrackClient preloadedTasks={preloadedTasks} />
         ) : null;
       case "plan":
-        return preloadedPlan ? (
-          <PlanClient preloadedPlan={preloadedPlan} />
-        ) : null;
+        return <PlanClient />;
       case "analyze":
         return preloadedTimeEntries ? (
           <AnalyzeClient preloadedTimeEntries={preloadedTimeEntries} />

@@ -4,6 +4,5 @@ export type PreloadedQuery = Awaited<
 
 export interface DashboardPageProps {
   preloadedTasks?: PreloadedQuery;
-  preloadedPlan?: PreloadedQuery;
   preloadedTimeEntries?: PreloadedQuery;
 }

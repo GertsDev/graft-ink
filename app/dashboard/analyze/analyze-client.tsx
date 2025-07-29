@@ -2,7 +2,7 @@
 
 import { usePreloadedQuery } from "convex/react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PreloadedQuery } from "../types";
 
 interface TimeEntry {
@@ -21,91 +21,113 @@ interface AnalyzeClientProps {
   preloadedTimeEntries: PreloadedQuery;
 }
 
+type TimePeriod = "today" | "yesterday" | "week" | "month";
+
+interface DayData {
+  date: string;
+  topics: { topic: string; time: number; color: string }[];
+  total: number;
+}
+
 export default function AnalyzeClient({
   preloadedTimeEntries,
 }: AnalyzeClientProps) {
   const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
 
   const timeEntries = useMemo(() => {
     return (rawTimeEntries as Record<string, GroupedEntries>) ?? {};
   }, [rawTimeEntries]);
 
-  const analytics = useMemo(() => {
+  // Generate consistent colors for topics
+  const getTopicColor = (topic: string): string => {
+    const colors = ["#534439", "#baa89b", "##00ad91", "##00765f"];
+
+    // Simple hash function to consistently assign colors
+    let hash = 0;
+    for (let i = 0; i < topic.length; i++) {
+      hash = topic.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const filteredData = useMemo(() => {
     const entries = Object.values(timeEntries).flatMap((item) => item.entries);
 
-    if (entries.length === 0) {
-      return {
-        totalTime: 0,
-        averagePerDay: 0,
-        topTasks: [],
-        topTopics: [],
-        dailyBreakdown: [],
-        productivityScore: 0,
-      };
+    if (entries.length === 0) return [];
+
+    const now = new Date();
+    let startDate: Date;
+
+    switch (selectedPeriod) {
+      case "today":
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case "yesterday":
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - 1,
+        );
+        break;
+      case "week":
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "month":
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          now.getDate(),
+        );
+        break;
+      default:
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     }
 
-    const totalTime = entries.reduce((sum, entry) => sum + entry.duration, 0);
-    const averagePerDay = Math.round(totalTime / 7);
-
-    // Group by task title and calculate totals
-    const taskTotals = entries.reduce(
-      (acc, entry) => {
-        acc[entry.taskTitle] = (acc[entry.taskTitle] || 0) + entry.duration;
-        return acc;
-      },
-      {} as Record<string, number>,
+    const filteredEntries = entries.filter(
+      (entry) => entry.startedAt >= startDate.getTime(),
     );
 
-    const topTasks = Object.entries(taskTotals)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([task, time]) => ({ task: task as string, time: time as number }));
+    // Group by day and topic
+    const dayMap = new Map<string, Map<string, number>>();
 
-    // Group by topic
-    const topicTotals = entries.reduce(
-      (acc, entry) => {
-        const topic = entry.taskTopic || "Uncategorized";
-        acc[topic] = (acc[topic] || 0) + entry.duration;
-        return acc;
-      },
-      {} as Record<string, number>,
+    filteredEntries.forEach((entry) => {
+      const date = new Date(entry.startedAt).toDateString();
+      const topic = entry.taskTopic || "Uncategorized";
+
+      if (!dayMap.has(date)) {
+        dayMap.set(date, new Map());
+      }
+
+      const topicMap = dayMap.get(date)!;
+      topicMap.set(topic, (topicMap.get(topic) || 0) + entry.duration);
+    });
+
+    // Convert to array format
+    const result: DayData[] = [];
+    const sortedDates = Array.from(dayMap.keys()).sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
     );
 
-    const topTopics = Object.entries(topicTotals)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([topic, time]) => ({
-        topic: topic as string,
-        time: time as number,
+    sortedDates.forEach((date) => {
+      const topicMap = dayMap.get(date)!;
+      const topics = Array.from(topicMap.entries()).map(([topic, time]) => ({
+        topic,
+        time,
+        color: getTopicColor(topic),
       }));
 
-    // Daily breakdown
-    const dailyTotals = entries.reduce(
-      (acc, entry) => {
-        const date = new Date(entry.startedAt).toDateString();
-        acc[date] = (acc[date] || 0) + entry.duration;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
+      const total = topics.reduce((sum, t) => sum + t.time, 0);
 
-    const dailyBreakdown = Object.entries(dailyTotals)
-      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-      .map(([date, time]) => ({ date: date as string, time: time as number }));
+      result.push({
+        date,
+        topics: topics.sort((a, b) => b.time - a.time),
+        total,
+      });
+    });
 
-    // Simple productivity score based on consistency
-    const daysWorked = Object.keys(dailyTotals).length;
-    const productivityScore = Math.round((daysWorked / 7) * 100);
-
-    return {
-      totalTime,
-      averagePerDay,
-      topTasks,
-      topTopics,
-      dailyBreakdown,
-      productivityScore,
-    };
-  }, [timeEntries]);
+    return result;
+  }, [timeEntries, selectedPeriod]);
 
   const formatTime = (minutes: number) => {
     const h = Math.floor(minutes / 60);
@@ -114,155 +136,125 @@ export default function AnalyzeClient({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+    if (date.toDateString() === today.toDateString()) return "Today";
+    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+
+    return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
   };
 
-  if (analytics.totalTime === 0) {
-    return (
-      <div className="mx-auto flex min-h-96 min-w-100 flex-col gap-4">
-        <Card>
-          <CardContent className="p-6 text-center text-gray-500">
-            No time entries found for the last 7 days. Start tracking your time
-            to see analytics here.
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const maxTime = Math.max(...filteredData.map((day) => day.total), 1);
+
+  const periodLabels = {
+    today: "Today",
+    yesterday: "Yesterday",
+    week: "This Week",
+    month: "This Month",
+  };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-gray-500">
-              Total Time (7 days)
-            </h3>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {formatTime(analytics.totalTime)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Daily Average</h3>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {formatTime(analytics.averagePerDay)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-gray-500">
-              Consistency Score
-            </h3>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{analytics.productivityScore}%</p>
-            <p className="mt-1 text-xs text-gray-500">
-              Based on days worked this week
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Tasks */}
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
+      {/* Time Period Selection */}
       <Card>
         <CardHeader>
-          <h3 className="text-lg font-semibold">Top Tasks</h3>
+          <h2 className="text-xl font-semibold">Time Analysis</h2>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {analytics.topTasks.map(({ task, time }, index) => (
-              <div key={task} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-500">
-                    #{index + 1}
-                  </span>
-                  <span className="font-medium">{task}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold">{formatTime(time)}</span>
-                  <p className="text-xs text-gray-500">
-                    {Math.round((time / analytics.totalTime) * 100)}%
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Top Topics */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Time by Topic</h3>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {analytics.topTopics.map(({ topic, time }, index) => (
-              <div key={topic} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{
-                      backgroundColor: `hsl(${(index * 137.5) % 360}, 50%, 50%)`,
-                    }}
-                  />
-                  <span className="font-medium">{topic}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold">{formatTime(time)}</span>
-                  <p className="text-xs text-gray-500">
-                    {Math.round((time / analytics.totalTime) * 100)}%
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Daily Breakdown */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Daily Breakdown</h3>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {analytics.dailyBreakdown.map(({ date, time }) => (
-              <div
-                key={date}
-                className="flex items-center justify-between border-b border-gray-100 py-2 last:border-b-0"
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(periodLabels).map(([period, label]) => (
+              <button
+                key={period}
+                onClick={() => setSelectedPeriod(period as TimePeriod)}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  selectedPeriod === period
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
               >
-                <span className="font-medium">{formatDate(date)}</span>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 max-w-24 flex-1 overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className="h-full bg-blue-500"
-                      style={{
-                        width: `${Math.min(100, (time / Math.max(...analytics.dailyBreakdown.map((d) => d.time))) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-sm font-semibold">
-                    {formatTime(time)}
-                  </span>
-                </div>
-              </div>
+                {label}
+              </button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Time Visualization */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">
+            Time Spent by Topic - {periodLabels[selectedPeriod]}
+          </h3>
+        </CardHeader>
+        <CardContent>
+          {filteredData.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              No time entries found for this period. Start tracking your time to
+              see analytics here.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredData.map((day) => (
+                <div key={day.date} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">
+                      {formatDate(day.date)}
+                    </span>
+                    <span className="text-sm font-semibold">
+                      {formatTime(day.total)}
+                    </span>
+                  </div>
+
+                  {/* Topic Bar */}
+                  <div className="h-8 w-full overflow-hidden rounded-lg bg-gray-200">
+                    <div className="flex h-full">
+                      {day.topics.map((topic, index) => (
+                        <div
+                          key={`${topic.topic}-${index}`}
+                          className="group relative flex items-center justify-center"
+                          style={{
+                            backgroundColor: topic.color,
+                            width: `${(topic.time / maxTime) * 100}%`,
+                            minWidth: topic.time > 0 ? "2px" : "0px",
+                          }}
+                          title={`${topic.topic}: ${formatTime(topic.time)}`}
+                        >
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 transform rounded bg-black px-2 py-1 text-xs text-white group-hover:block">
+                            {topic.topic}: {formatTime(topic.time)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Topic Legend */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {day.topics.map((topic, index) => (
+                      <div
+                        key={`legend-${topic.topic}-${index}`}
+                        className="flex items-center gap-1"
+                      >
+                        <div
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: topic.color }}
+                        />
+                        <span className="text-xs text-gray-600">
+                          {topic.topic} ({formatTime(topic.time)})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
