@@ -1,4 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getUserOrThrow } from "./utils";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -8,10 +9,9 @@ export const add = mutation({
     duration: v.number(),
     note: v.optional(v.string()),
   },
-
+  returns: v.id("timeEntries"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
+    const userId = await getUserOrThrow(ctx);
 
     const task = await ctx.db.get(args.taskId);
     if (!task || task.userId !== userId) throw new Error("Invalid task");
@@ -32,12 +32,25 @@ export const add = mutation({
 // For analytics: Get entries by date range, grouped by topic/title
 export const getByRange = query({
   args: { start: v.number(), end: v.number() },
-
+  returns: v.record(
+    v.string(),
+    v.object({
+      total: v.number(),
+      entries: v.array(
+        v.object({
+          taskTitle: v.string(),
+          taskTopic: v.optional(v.string()),
+          duration: v.number(),
+          startedAt: v.number(),
+        }),
+      ),
+    }),
+  ),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
+    if (!userId) return {};
 
-    const entries = await ctx.db
+    const rawEntries = await ctx.db
       .query("timeEntries")
       .withIndex("by_user_date", (q) =>
         q
@@ -47,17 +60,23 @@ export const getByRange = query({
       )
       .collect();
 
-    // Group by topic/title for analytics UI (e.g., charts)
-    const grouped = entries.reduce(
-      (acc, entry) => {
-        const key = `${entry.taskTopic || "Uncategorized"}/${entry.taskTitle}`;
-        if (!acc[key]) acc[key] = { total: 0, entries: [] };
-        acc[key].total += entry.duration;
-        acc[key].entries.push(entry);
-        return acc;
-      },
-      {} as Record<string, { total: number; entries: typeof entries }>,
-    );
+    // Simplify docs to only required fields for client UI.
+    const entries = rawEntries.map((e) => ({
+      taskTitle: e.taskTitle,
+      taskTopic: e.taskTopic ?? undefined,
+      duration: e.duration,
+      startedAt: e.startedAt,
+    }));
+
+    const grouped = entries.reduce<
+      Record<string, { total: number; entries: typeof entries }>
+    >((acc, entry) => {
+      const key = `${entry.taskTopic || "Uncategorized"}/${entry.taskTitle}`;
+      if (!acc[key]) acc[key] = { total: 0, entries: [] };
+      acc[key].total += entry.duration;
+      acc[key].entries.push(entry);
+      return acc;
+    }, {});
     return grouped;
   },
 });

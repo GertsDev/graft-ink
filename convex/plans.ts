@@ -1,14 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { getUserOrThrow } from "./utils";
 
 // Fetch a plan for a specific user and date
 export const getPlan = query({
   args: { date: v.string() },
   returns: v.string(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return "";
+    const userId = await getUserOrThrow(ctx);
 
     const plan = await ctx.db
       .query("plans")
@@ -26,8 +25,7 @@ export const upsertPlan = mutation({
   args: { date: v.string(), planContent: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not authenticated");
+    const userId = await getUserOrThrow(ctx);
 
     // Check if a plan already exists for this user/date
     const existingPlan = await ctx.db
