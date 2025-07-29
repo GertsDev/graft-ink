@@ -3,6 +3,7 @@
 import { usePreloadedQuery } from "convex/react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { useMemo } from "react";
+import { PreloadedQuery } from "../types";
 
 interface TimeEntry {
   taskTitle: string;
@@ -17,19 +18,17 @@ interface GroupedEntries {
 }
 
 interface AnalyzeClientProps {
-  preloadedTimeEntries: Awaited<
-    ReturnType<typeof import("convex/nextjs").preloadQuery>
-  >;
+  preloadedTimeEntries: PreloadedQuery;
 }
 
 export default function AnalyzeClient({
   preloadedTimeEntries,
 }: AnalyzeClientProps) {
-  const timeEntries =
-    (usePreloadedQuery(preloadedTimeEntries) as Record<
-      string,
-      GroupedEntries
-    >) ?? {};
+  const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries);
+
+  const timeEntries = useMemo(() => {
+    return (rawTimeEntries as Record<string, GroupedEntries>) ?? {};
+  }, [rawTimeEntries]);
 
   const analytics = useMemo(() => {
     const entries = Object.values(timeEntries).flatMap((item) => item.entries);

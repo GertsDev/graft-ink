@@ -7,8 +7,8 @@ import { useOptimistic, useTransition, useState } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
+import { PreloadedQuery } from "../types";
 
-// Define the task type based on schema + computed properties
 interface TaskWithTime {
   _id: Id<"tasks">;
   _creationTime: number;
@@ -23,9 +23,7 @@ interface TaskWithTime {
 }
 
 interface Props {
-  preloadedTasks: Awaited<
-    ReturnType<typeof import("convex/nextjs").preloadQuery>
-  >;
+  preloadedTasks: PreloadedQuery;
 }
 
 export default function TrackClient({ preloadedTasks }: Props) {

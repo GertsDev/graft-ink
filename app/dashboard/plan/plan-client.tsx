@@ -1,20 +1,14 @@
-//app/dashboard/plan/page.tsx
+//app/dashboard/plan/plan-client.tsx
 "use client";
 
 import React, { useRef, useState } from "react";
 import { format } from "date-fns";
 import { useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-
 import { useDebounce } from "../../hooks/use-debounce";
+import { PreloadedQuery } from "../types";
 
-const PlanClient = ({
-  preloadedPlan,
-}: {
-  preloadedPlan: Awaited<
-    ReturnType<typeof import("convex/nextjs").preloadQuery>
-  >;
-}) => {
+const PlanClient = ({ preloadedPlan }: { preloadedPlan: PreloadedQuery }) => {
   const today = format(new Date(), "yyyy-MM-dd");
   const fetchedPlan = usePreloadedQuery(preloadedPlan) ?? "";
   const [planContent, setPlanContent] = useState(fetchedPlan);

@@ -1,18 +1,15 @@
-//app/dashboard/page.tsx
-import React, { Suspense } from "react";
-import TrackPage from "./track/page";
-import PlanPage from "./plan/page";
-import AnalyzePage from "./analyze/page";
+import React from "react";
 import { preloadQuery } from "convex/nextjs";
 import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
+import { TabShell } from "./tab-shell";
 
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const [{ tab }] = await Promise.all([searchParams]);
+  const { tab } = await searchParams;
   const activeTab = tab ?? "track";
 
   const now = new Date();
@@ -29,17 +26,12 @@ export default async function DashboardPage({
       }),
     ]);
 
-  let content: React.ReactNode;
-  switch (activeTab) {
-    case "plan":
-      content = <PlanPage preloadedPlan={preloadedPlan} />;
-      break;
-    case "analyze":
-      content = <AnalyzePage preloadedTimeEntries={preloadedTimeEntries} />;
-      break;
-    default:
-      content = <TrackPage preloadedTasks={preloadedTasks} />;
-  }
-
-  return <Suspense fallback={<div>Loading...</div>}>{content}</Suspense>;
+  return (
+    <TabShell
+      activeTab={activeTab}
+      preloadedTasks={preloadedTasks}
+      preloadedPlan={preloadedPlan}
+      preloadedTimeEntries={preloadedTimeEntries}
+    />
+  );
 }
