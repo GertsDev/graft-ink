@@ -9,7 +9,11 @@ import { api } from "../../../convex/_generated/api";
 import { useDebounce } from "../../hooks/use-debounce";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../../components/ui/popover";
 
 type DateOption = "today" | "yesterday" | "custom";
 
@@ -27,7 +31,7 @@ const PlanClient = () => {
   // Update plan content when query result changes
   useEffect(() => {
     if (planQuery !== undefined) {
-      setPlanContent(planQuery || "");
+      setPlanContent(planQuery ?? "");
     }
   }, [planQuery]);
 
@@ -140,7 +144,9 @@ const PlanClient = () => {
                   className="gap-2"
                 >
                   <Calendar className="h-4 w-4" />
-                  {dateOption === "custom" ? formatDisplayDate(selectedDate) : "Pick Date"}
+                  {dateOption === "custom"
+                    ? formatDisplayDate(selectedDate)
+                    : "Pick Date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -153,7 +159,10 @@ const PlanClient = () => {
                   <div className="grid grid-cols-7 gap-1">
                     {/* Day headers */}
                     {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                      <div key={day} className="p-2 text-center text-xs font-medium text-gray-500">
+                      <div
+                        key={day}
+                        className="p-2 text-center text-xs font-medium text-gray-500"
+                      >
                         {day}
                       </div>
                     ))}
@@ -166,11 +175,12 @@ const PlanClient = () => {
                             variant="ghost"
                             size="sm"
                             className={`h-8 w-8 p-0 text-xs ${
-                              format(day, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
+                              format(day, "yyyy-MM-dd") ===
+                              format(selectedDate, "yyyy-MM-dd")
                                 ? "bg-primary text-primary-foreground"
                                 : isToday(day)
-                                ? "bg-accent text-accent-foreground"
-                                : ""
+                                  ? "bg-accent text-accent-foreground"
+                                  : ""
                             }`}
                             onClick={() => handleDateSelect(day)}
                           >
@@ -188,7 +198,10 @@ const PlanClient = () => {
 
             {/* Selected Date Display */}
             <div className="ml-auto text-sm text-gray-600">
-              Plan for: <span className="font-medium">{formatDisplayDate(selectedDate)}</span>
+              Plan for:{" "}
+              <span className="font-medium">
+                {formatDisplayDate(selectedDate)}
+              </span>
             </div>
           </div>
         </CardContent>
@@ -204,7 +217,7 @@ const PlanClient = () => {
         <CardContent className="p-6">
           <textarea
             ref={textareaRef}
-            className="min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 text-sm leading-relaxed focus:border-primary focus:outline-none"
+            className="focus:border-primary min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 text-sm leading-relaxed focus:outline-none"
             id="plan"
             value={planContent}
             onChange={handleChange}

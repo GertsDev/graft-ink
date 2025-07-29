@@ -5,7 +5,7 @@ import { getUserOrThrow } from "./utils";
 // Fetch a plan for a specific user and date
 export const getPlan = query({
   args: { date: v.string() },
-  returns: v.string(),
+  returns: v.union(v.string(), v.null()),
   handler: async (ctx, args) => {
     const userId = await getUserOrThrow(ctx);
 
@@ -16,7 +16,7 @@ export const getPlan = query({
       )
       .first();
 
-    return plan ? plan.planContent : "";
+    return plan ? plan.planContent : null;
   },
 });
 
