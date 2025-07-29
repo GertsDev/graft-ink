@@ -48,7 +48,7 @@ export default function TrackClient() {
       switch (action.type) {
         case "addTime":
           return current.map((t: TaskWithTime) =>
-            t.id === action.taskId
+            t._id === action.taskId
               ? { ...t, todayTime: (t.todayTime ?? 0) + action.duration }
               : t,
           );
@@ -141,7 +141,7 @@ export default function TrackClient() {
               .filter((t: TaskWithTime) => (t.todayTime ?? 0) > 0)
               .slice(0, 2)
               .map((t: TaskWithTime) => (
-                <p key={t.id}>
+                <p key={t._id}>
                   {t.title}: {formatTime(t.todayTime ?? 0)}
                 </p>
               ))}
@@ -226,7 +226,7 @@ export default function TrackClient() {
           </Card>
         ) : (
           optimisticTasks.map((task: TaskWithTime) => (
-            <Card key={task.id}>
+            <Card key={task._id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div>
