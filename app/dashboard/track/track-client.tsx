@@ -7,6 +7,7 @@ import { useOptimistic, useTransition, useState } from "react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
+import { PenLine, Trash2 } from "lucide-react";
 import { useDashboardData } from "../dashboard-context";
 
 interface TaskWithTime {
@@ -66,6 +67,9 @@ export default function TrackClient() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTopic, setNewTaskTopic] = useState("");
   const [showAddTask, setShowAddTask] = useState(false);
+  const [openEditTaskId, setOpenEditTaskId] = useState<Id<"tasks"> | null>(
+    null,
+  );
 
   const totalToday = optimisticTasks.reduce(
     (sum: number, t: TaskWithTime) => sum + (t.todayTime ?? 0),
@@ -115,6 +119,7 @@ export default function TrackClient() {
     startTransition(() => {
       setOptimisticTasks({ type: "deleteTask", taskId });
       deleteTask({ taskId });
+      setOpenEditTaskId(null);
     });
   };
 
@@ -235,14 +240,30 @@ export default function TrackClient() {
                       <p className="text-sm text-gray-500">{task.topic}</p>
                     )}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteTask(task._id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    Delete
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {openEditTaskId === task._id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Delete task"
+                        onClick={() => handleDeleteTask(task._id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Edit task"
+                      onClick={() =>
+                        setOpenEditTaskId(
+                          openEditTaskId === task._id ? null : task._id,
+                        )
+                      }
+                    >
+                      <PenLine className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
