@@ -74,22 +74,65 @@ export const getUserTaskWithTime = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    const todayStart = new Date().setHours(0, 0, 0, 0);
-    return Promise.all(
-      tasks.map(async (task) => {
-        const entries = await ctx.db
-          .query("timeEntries")
-          .withIndex("by_task", (q) => q.eq("taskId", task._id))
-          .collect();
+    // Get all time entries for this user to avoid N+1 queries
+    const allEntries = await ctx.db
+      .query("timeEntries")
+      .withIndex("by_user_date", (q) => q.eq("userId", userId))
+      .collect();
 
-        const totalTime = entries.reduce((sum, e) => sum + e.duration, 0);
-        const todayTime = entries
-          .filter((e) => e.startedAt >= todayStart)
-          .reduce((sum, e) => sum + e.duration, 0);
+    return tasks.map((task) => {
+      const taskEntries = allEntries.filter((e) => e.taskId === task._id);
+      const totalTime = taskEntries.reduce((sum, e) => sum + e.duration, 0);
 
-        return { ...task, totalTime, todayTime };
-      }),
-    );
+      // Note: todayTime calculation removed from server - client should handle timezone-specific "today"
+      // This ensures consistency with analytics which handles "today" client-side
+      const todayTime = 0;
+
+      return { ...task, totalTime, todayTime };
+    });
+  },
+});
+
+// Get tasks with client-calculated today time for consistency
+export const getUserTasksWithClientTodayTime = query({
+  args: { todayStart: v.number() },
+  returns: v.array(
+    v.object({
+      _id: v.id("tasks"),
+      _creationTime: v.number(),
+      title: v.string(),
+      topic: v.optional(v.string()),
+      subtopic: v.optional(v.string()),
+      createdAt: v.number(),
+      userId: v.id("users"),
+      totalTime: v.number(),
+      todayTime: v.number(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    // Get all time entries for this user to avoid N+1 queries
+    const allEntries = await ctx.db
+      .query("timeEntries")
+      .withIndex("by_user_date", (q) => q.eq("userId", userId))
+      .collect();
+
+    return tasks.map((task) => {
+      const taskEntries = allEntries.filter((e) => e.taskId === task._id);
+      const totalTime = taskEntries.reduce((sum, e) => sum + e.duration, 0);
+      const todayTime = taskEntries
+        .filter((e) => e.startedAt >= args.todayStart)
+        .reduce((sum, e) => sum + e.duration, 0);
+
+      return { ...task, totalTime, todayTime };
+    });
   },
 });
 

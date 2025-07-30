@@ -74,7 +74,11 @@ export function TrackProvider({ initialTasks, children }: Props) {
       case "addTime":
         return current.map((t) =>
           t._id === action.taskId
-            ? { ...t, todayTime: (t.todayTime ?? 0) + action.duration }
+            ? {
+                ...t,
+                todayTime: (t.todayTime ?? 0) + action.duration,
+                totalTime: (t.totalTime ?? 0) + action.duration,
+              }
             : t,
         );
       case "updateTask":

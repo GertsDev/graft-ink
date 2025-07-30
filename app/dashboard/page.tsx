@@ -16,8 +16,12 @@ export default async function DashboardPage({
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+
   const [preloadedTasks, preloadedTimeEntries] = await Promise.all([
-    preloadQuery(api.tasks.getUserTaskWithTime),
+    preloadQuery(api.tasks.getUserTasksWithClientTodayTime, {
+      todayStart,
+    }),
     preloadQuery(api.timeEntries.getByRange, {
       start: weekAgo.getTime(),
       end: now.getTime(),
