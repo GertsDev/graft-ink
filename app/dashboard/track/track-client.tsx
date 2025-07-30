@@ -59,7 +59,7 @@ function TrackContent() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
       {/* Daily Summary Card */}
-      <Card className="mt-6">
+      <Card>
         <CardHeader className="flex flex-row items-start justify-between pb-2">
           <h2 className="text-2xl font-bold">{formatTime(totalToday)} TODAY</h2>
           <div className="text-muted-foreground text-right text-sm">

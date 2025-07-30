@@ -65,5 +65,5 @@ export function TabShell({ activeTab }: { activeTab: string }) {
     }
   };
 
-  return <div className="flex w-full flex-1 flex-col">{renderContent()}</div>;
+  return <div className="flex w-full flex-1 flex-col pt-5 md:pt-8 h-screen">{renderContent()}</div>;
 }

@@ -81,7 +81,7 @@ export const MobileBottomTabs = () => {
     }`;
 
   return (
-    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden">
+    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden py-1">
       <button
         className={tabClass("track")}
         onClick={() => handleClick("track")}
