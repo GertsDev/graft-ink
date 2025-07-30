@@ -4,10 +4,11 @@ import Link from "next/link";
 import ThemeToggle from "./theme-toggle";
 import AuthDropdown from "../auth/oauth/auth-dropdown";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { Authenticated } from "convex/react";
 
 const DesktopDashboardTabs = () => {
   const pathname = usePathname();
-  console.log("🚀 ~ DesktopDashboardTabs ~ pathname:", pathname)
+  console.log("🚀 ~ DesktopDashboardTabs ~ pathname:", pathname);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -27,7 +28,7 @@ const DesktopDashboardTabs = () => {
     }`;
 
   return (
-    <nav className="flex gap-4  ">
+    <nav className="flex gap-4">
       <span
         className={tabClass("track")}
         onClick={() => handleClick("track")}
@@ -80,7 +81,7 @@ export const MobileBottomTabs = () => {
     }`;
 
   return (
-    <nav className="bg-background fixed right-0 bottom-0 left-0 z-50 flex justify-around border-t md:hidden h-14">
+    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden">
       <button
         className={tabClass("track")}
         onClick={() => handleClick("track")}
@@ -101,6 +102,8 @@ export const MobileBottomTabs = () => {
 };
 
 const NavBar = () => {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b-2 px-1 py-1 backdrop-blur-md md:px-8">
       <Link href="/">
@@ -120,7 +123,18 @@ const NavBar = () => {
       </div>
 
       <div className="flex items-center gap-4 pr-4">
+        <Authenticated>
+          {(pathname === "/" || pathname === "/home") && (
+            <Link
+              href="/dashboard"
+              className="hover:text-primary text-sm font-semibold"
+            >
+              Dashboard
+            </Link>
+          )}
+        </Authenticated>
         <ThemeToggle />
+
         <AuthDropdown />
       </div>
     </header>
