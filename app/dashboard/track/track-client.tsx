@@ -8,7 +8,7 @@ import { Button } from "../../../components/ui/button";
 import { useDashboardData } from "../dashboard-context";
 import { TrackProvider, useTrack, TaskWithTime } from "./track-context";
 import TaskCard from "./task-card";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 // helper
 function formatTime(minutes: number) {
@@ -21,14 +21,27 @@ function TrackContent() {
   const { optimisticTasks, setOptimistic, createTask, startTrans, isPending } =
     useTrack();
 
+  // Use same time entries data that analytics uses for consistency
+  const { preloadedTimeEntries } = useDashboardData();
+  if (!preloadedTimeEntries)
+    throw new Error("TrackContent rendered without preloadedTimeEntries");
+  const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries) as Record<
+    string,
+    { total: number; entries: { duration: number; startedAt: number }[] }
+  >;
+
+  // Calculate today's total from time entries (same as analytics)
+  const totalToday = useMemo(() => {
+    const todayStart = new Date().setHours(0, 0, 0, 0);
+    return Object.values(rawTimeEntries)
+      .flatMap((g) => g.entries ?? [])
+      .filter((e) => e.startedAt >= todayStart)
+      .reduce((sum, e) => sum + e.duration, 0);
+  }, [rawTimeEntries]);
+
   const [showAddTask, setShowAddTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTopic, setNewTaskTopic] = useState("");
-
-  const totalToday = optimisticTasks.reduce(
-    (sum: number, t) => sum + (t.todayTime ?? 0),
-    0,
-  );
 
   const handleCreateTask = () => {
     if (!newTaskTitle.trim()) return;
