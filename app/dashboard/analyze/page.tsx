@@ -1,9 +1,8 @@
 "use client";
 
-import { usePreloadedQuery } from "convex/react";
+import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { useMemo, useState } from "react";
-import { useDashboardData } from "../dashboard-context";
+import { useAnalyticsData } from "../shared/hooks/use-dashboard-data";
 
 interface TimeEntry {
   taskTitle: string;
@@ -25,14 +24,8 @@ interface DayData {
   total: number;
 }
 
-export default function AnalyzeClient() {
-  const { preloadedTimeEntries } = useDashboardData();
-
-  if (!preloadedTimeEntries) {
-    throw new Error("AnalyzeClient rendered without preloadedTimeEntries");
-  }
-
-  const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries);
+export default function AnalyzePage() {
+  const rawTimeEntries = useAnalyticsData();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
 
   const timeEntries = useMemo(() => {
@@ -41,7 +34,7 @@ export default function AnalyzeClient() {
 
   // Generate consistent colors for topics
   const getTopicColor = (topic: string): string => {
-    const colors = ["#534439", "#baa89b", "##00ad91", "##00765f"];
+    const colors = ["#534439", "#baa89b", "#00ad91", "#00765f"];
 
     // Simple hash function to consistently assign colors
     let hash = 0;

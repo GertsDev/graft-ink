@@ -1,11 +1,10 @@
 import { SignInWithOAuth } from "./oauth/sign-in-with-oauth";
 
-
 export function SignInForm() {
   return (
-    <div className="max-w-[384px] mx-auto flex flex-col gap-4">
+    <div className="mx-auto flex max-w-[384px] flex-col gap-4">
       <>
-        <h2 className="font-semibold text-2xl tracking-tight">
+        <h2 className="text-2xl font-semibold tracking-tight">
           Sign in or create an account
         </h2>
         <SignInWithOAuth />

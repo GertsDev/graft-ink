@@ -1,73 +1,53 @@
-// app/dashboard/track/track-client.tsx
 "use client";
 
-import { usePreloadedQuery } from "convex/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { useDashboardData } from "../dashboard-context";
-import { TrackProvider, useTrack, TaskWithTime } from "./track-context";
-import TaskCard from "./task-card";
-import { useState, useMemo } from "react";
+import { useDashboardData } from "../shared/hooks/use-dashboard-data";
+import { useTaskOperations } from "../shared/hooks/use-task-operations";
 
-// helper
+import TaskCard from "../shared/components/task-card";
+
+// Helper function
 function formatTime(minutes: number) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return h ? `${h}h ${m}m` : `${m}m`;
 }
 
-function TrackContent() {
-  const { optimisticTasks, setOptimistic, createTask, startTrans, isPending } =
-    useTrack();
-
-  // Use same time entries data that analytics uses for consistency
-  const { preloadedTimeEntries } = useDashboardData();
-  if (!preloadedTimeEntries)
-    throw new Error("TrackContent rendered without preloadedTimeEntries");
-  const rawTimeEntries = usePreloadedQuery(preloadedTimeEntries) as Record<
-    string,
-    { total: number; entries: { duration: number; startedAt: number }[] }
-  >;
-
-  // Calculate today's total from time entries (same as analytics)
-  const totalToday = useMemo(() => {
-    const todayStart = new Date().setHours(0, 0, 0, 0);
-    return Object.values(rawTimeEntries)
-      .flatMap((g) => g.entries ?? [])
-      .filter((e) => e.startedAt >= todayStart)
-      .reduce((sum, e) => sum + e.duration, 0);
-  }, [rawTimeEntries]);
+export default function TrackPage() {
+  const { tasks, totalToday, isLoading } = useDashboardData();
+  const { createTask } = useTaskOperations();
 
   const [showAddTask, setShowAddTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTopic, setNewTaskTopic] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (!newTaskTitle.trim()) return;
 
-    startTrans(() => {
-      const tempTask: TaskWithTime = {
-        _id: `temp-${Date.now()}` as Id<"tasks">,
-        _creationTime: Date.now(),
-        id: `temp-${Date.now()}`,
-        title: newTaskTitle,
-        topic: newTaskTopic || undefined,
-        createdAt: Date.now(),
-        userId: "temp" as Id<"users">,
-        totalTime: 0,
-        todayTime: 0,
-      };
-
-      setOptimistic({ type: "addTask", task: tempTask });
-
-      createTask({ title: newTaskTitle, topic: newTaskTopic || undefined });
-
+    setIsCreating(true);
+    try {
+      await createTask(newTaskTitle.trim(), newTaskTopic.trim() || undefined);
       setNewTaskTitle("");
       setNewTaskTopic("");
       setShowAddTask(false);
-    });
+    } catch (error) {
+      console.error("Failed to create task:", error);
+    } finally {
+      setIsCreating(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
+        <div className="h-32 animate-pulse rounded-lg bg-gray-100" />
+        <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
@@ -76,7 +56,7 @@ function TrackContent() {
         <CardHeader className="flex flex-row items-start justify-between pb-2">
           <h2 className="text-2xl font-bold">{formatTime(totalToday)} TODAY</h2>
           <div className="text-muted-foreground text-right text-sm">
-            {optimisticTasks
+            {tasks
               .filter((t) => (t.todayTime ?? 0) > 0)
               .slice(0, 2)
               .map((t) => (
@@ -136,9 +116,9 @@ function TrackContent() {
             <div className="flex gap-2">
               <Button
                 onClick={handleCreateTask}
-                disabled={!newTaskTitle.trim() || isPending}
+                disabled={!newTaskTitle.trim() || isCreating}
               >
-                Create Task
+                {isCreating ? "Creating..." : "Create Task"}
               </Button>
               <Button
                 variant="outline"
@@ -157,31 +137,16 @@ function TrackContent() {
 
       {/* Tasks List */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {optimisticTasks.length === 0 ? (
+        {tasks.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-center text-gray-500">
               No tasks yet. Create your first task to start tracking time.
             </CardContent>
           </Card>
         ) : (
-          optimisticTasks.map((task) => <TaskCard key={task._id} task={task} />)
+          tasks.map((task) => <TaskCard key={task._id} task={task} />)
         )}
       </div>
     </div>
-  );
-}
-
-export default function TrackClient() {
-  const { preloadedTasks } = useDashboardData();
-
-  if (!preloadedTasks)
-    throw new Error("TrackClient rendered without preloadedTasks");
-
-  const tasks = usePreloadedQuery(preloadedTasks) as TaskWithTime[];
-
-  return (
-    <TrackProvider initialTasks={tasks}>
-      <TrackContent />
-    </TrackProvider>
   );
 }

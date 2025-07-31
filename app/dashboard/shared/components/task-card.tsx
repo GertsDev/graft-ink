@@ -1,18 +1,16 @@
 "use client";
 
 import { useState } from "react";
-
 import { PenLine, Trash2, Check } from "lucide-react";
-
-import { useTrack } from "./track-context";
-import { Id } from "../../../convex/_generated/dataModel";
-import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import { Card, CardContent, CardHeader } from "../../../../components/ui/card";
+import { Button } from "../../../../components/ui/button";
+import { useTaskOperations } from "../hooks/use-task-operations";
+import { useTimeDurations } from "../../../hooks/use-time-durations";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 interface TaskWithTime {
   _id: Id<"tasks">;
   _creationTime: number;
-  id: string;
   title: string;
   topic?: string;
   createdAt: number;
@@ -26,23 +24,16 @@ interface Props {
 }
 
 export default function TaskCard({ task }: Props) {
-  const {
-    timeDurations,
-    setTimeDurations,
-    setOptimistic,
-    startTrans,
-    isPending,
-    addTime,
-    deleteTask,
-    updateTask,
-  } = useTrack();
+  const { addTime, updateTask, deleteTask } = useTaskOperations();
+  const [timeDurations, setTimeDurations] = useTimeDurations();
 
-  const [openEdit, setOpenEdit] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [tempTitle, setTempTitle] = useState(task.title);
+  const [tempTopic, setTempTopic] = useState(task.topic ?? "");
   const [tempDurations, setTempDurations] = useState<string[]>(
     timeDurations.map(String),
   );
-  const [tempTitle, setTempTitle] = useState(task.title);
-  const [tempTopic, setTempTopic] = useState(task.topic ?? "");
 
   const isTempDurationsValid = tempDurations.every((d) => {
     const n = parseInt(d, 10);
@@ -56,40 +47,46 @@ export default function TaskCard({ task }: Props) {
     );
   };
 
-  const applyEdits = () => {
+  const handleSaveEdits = async () => {
     if (!isTempDurationsValid || !tempTitle.trim()) return;
 
-    const nums = tempDurations.map((d) => parseInt(d, 10));
+    setIsLoading(true);
+    try {
+      const nums = tempDurations.map((d) => parseInt(d, 10));
 
-    startTrans(() => {
-      // optimistic updates
-      setOptimistic({
-        type: "updateTask",
-        taskId: task._id,
-        title: tempTitle.trim(),
-        topic: tempTopic.trim() || undefined,
-      });
-      setTimeDurations(nums);
+      // Update task and durations in parallel
+      await Promise.all([
+        updateTask(task._id, tempTitle.trim(), tempTopic.trim() || undefined),
+        setTimeDurations(nums),
+      ]);
 
-      updateTask({
-        taskId: task._id,
-        title: tempTitle.trim(),
-        topic: tempTopic.trim() || undefined,
-      });
-    });
-
-    setOpenEdit(false);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAddTime = (duration: number) => {
-    startTrans(() => {
-      setOptimistic({
-        type: "addTime",
-        taskId: task._id,
-        duration,
-      });
-      addTime({ taskId: task._id, duration });
-    });
+  const handleAddTime = async (duration: number) => {
+    setIsLoading(true);
+    try {
+      await addTime(task._id, duration);
+    } catch (error) {
+      console.error("Failed to add time:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    setIsLoading(true);
+    try {
+      await deleteTask(task._id);
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      setIsLoading(false);
+    }
   };
 
   const formatTime = (minutes: number) => {
@@ -103,7 +100,7 @@ export default function TaskCard({ task }: Props) {
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="w-full">
-            {openEdit ? (
+            {isEditing ? (
               <>
                 <input
                   type="text"
@@ -130,27 +127,25 @@ export default function TaskCard({ task }: Props) {
             )}
           </div>
           <div className="flex items-center gap-1">
-            {openEdit ? (
+            {isEditing ? (
               <>
                 <Button
                   variant="ghost"
                   size="icon"
                   aria-label="Delete task"
-                  onClick={() => {
-                    startTrans(() => {
-                      setOptimistic({ type: "deleteTask", taskId: task._id });
-                      deleteTask({ taskId: task._id });
-                    });
-                  }}
+                  onClick={handleDeleteTask}
+                  disabled={isLoading}
                 >
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Apply changes"
-                  onClick={applyEdits}
-                  disabled={!isTempDurationsValid || !tempTitle.trim()}
+                  aria-label="Save changes"
+                  onClick={handleSaveEdits}
+                  disabled={
+                    !isTempDurationsValid || !tempTitle.trim() || isLoading
+                  }
                 >
                   <Check
                     className={
@@ -167,7 +162,8 @@ export default function TaskCard({ task }: Props) {
                 variant="ghost"
                 size="icon"
                 aria-label="Edit task"
-                onClick={() => setOpenEdit(true)}
+                onClick={() => setIsEditing(true)}
+                disabled={isLoading}
               >
                 <PenLine className="h-4 w-4" />
               </Button>
@@ -178,7 +174,7 @@ export default function TaskCard({ task }: Props) {
       <CardContent>
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            {openEdit
+            {isEditing
               ? tempDurations.map((dur, idx) => (
                   <input
                     key={idx}
@@ -197,7 +193,7 @@ export default function TaskCard({ task }: Props) {
                     key={d}
                     size="sm"
                     onClick={() => handleAddTime(d)}
-                    disabled={isPending}
+                    disabled={isLoading}
                   >
                     +{d}m
                   </Button>

@@ -1,39 +1,7 @@
 // app/dashboard/page.tsx
-import React from "react";
-import { preloadQuery } from "convex/nextjs";
-import { api } from "../../convex/_generated/api";
-import { TabShell } from "./tab-shell";
-import { DashboardDataProvider } from "./dashboard-context";
+import { redirect } from "next/navigation";
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const { tab } = await searchParams;
-  const activeTab = tab ?? "track";
-
-  const now = new Date();
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-  const todayStart = new Date().setHours(0, 0, 0, 0);
-
-  const [preloadedTasks, preloadedTimeEntries] = await Promise.all([
-    preloadQuery(api.tasks.getUserTasksWithClientTodayTime, {
-      todayStart,
-    }),
-    preloadQuery(api.timeEntries.getByRange, {
-      start: weekAgo.getTime(),
-      end: now.getTime(),
-    }),
-  ]);
-
-  return (
-    <DashboardDataProvider
-      preloadedTasks={preloadedTasks}
-      preloadedTimeEntries={preloadedTimeEntries}
-    >
-      <TabShell activeTab={activeTab} />
-    </DashboardDataProvider>
-  );
+export default function DashboardPage() {
+  // Redirect to track by default
+  redirect("/dashboard/track");
 }

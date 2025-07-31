@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
+import type * as dashboard from "../dashboard.js";
 import type * as http from "../http.js";
 import type * as plans from "../plans.js";
 import type * as tasks from "../tasks.js";
@@ -33,6 +34,7 @@ import type * as utils from "../utils.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   crons: typeof crons;
+  dashboard: typeof dashboard;
   http: typeof http;
   plans: typeof plans;
   tasks: typeof tasks;

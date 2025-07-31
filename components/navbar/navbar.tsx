@@ -3,100 +3,61 @@
 import Link from "next/link";
 import ThemeToggle from "./theme-toggle";
 import AuthDropdown from "../auth/oauth/auth-dropdown";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Authenticated } from "convex/react";
 
 const DesktopDashboardTabs = () => {
   const pathname = usePathname();
-  console.log("🚀 ~ DesktopDashboardTabs ~ pathname:", pathname);
-  const searchParams = useSearchParams();
-  const router = useRouter();
 
   if (!pathname.startsWith("/dashboard")) return null;
 
-  const currentTab = searchParams.get("tab") ?? "track";
-
-  const handleClick = (value: string) => {
-    const next = new URLSearchParams(searchParams);
-    next.set("tab", value);
-    router.replace(`/dashboard?${next.toString()}`, { scroll: false });
-  };
-
-  const tabClass = (val: string) =>
+  const tabClass = (path: string) =>
     `cursor-pointer px-4 py-2 text-lg font-medium ${
-      currentTab === val ? "border-b-2 border-orange-500" : "opacity-70"
+      pathname === path ? "border-b-2 border-orange-500" : "opacity-70"
     }`;
 
   return (
     <nav className="flex gap-4">
-      <span
-        className={tabClass("track")}
-        onClick={() => handleClick("track")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleClick("track")}
-      >
+      <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
         Track
-      </span>
-      <span
-        className={tabClass("plan")}
-        onClick={() => handleClick("plan")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleClick("plan")}
-      >
+      </Link>
+      <Link href="/dashboard/plan" className={tabClass("/dashboard/plan")}>
         Plan
-      </span>
-      <span
-        className={tabClass("analyze")}
-        onClick={() => handleClick("analyze")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleClick("analyze")}
+      </Link>
+      <Link
+        href="/dashboard/analyze"
+        className={tabClass("/dashboard/analyze")}
       >
         Analyze
-      </span>
+      </Link>
     </nav>
   );
 };
 
 export const MobileBottomTabs = () => {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
 
   if (!pathname.startsWith("/dashboard")) return null;
 
-  const currentTab = searchParams.get("tab") ?? "track";
-
-  const handleClick = (value: string) => {
-    const next = new URLSearchParams(searchParams);
-    next.set("tab", value);
-    router.replace(`/dashboard?${next.toString()}`, { scroll: false });
-  };
-
-  const tabClass = (val: string) =>
+  const tabClass = (path: string) =>
     `flex-1 text-center py-2 text-base font-medium ${
-      currentTab === val ? "text-primary" : "opacity-70"
+      pathname === path ? "text-primary" : "opacity-70"
     }`;
 
   return (
-    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden py-1">
-      <button
-        className={tabClass("track")}
-        onClick={() => handleClick("track")}
-      >
+    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t py-1 md:hidden">
+      <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
         Track
-      </button>
-      <button className={tabClass("plan")} onClick={() => handleClick("plan")}>
+      </Link>
+      <Link href="/dashboard/plan" className={tabClass("/dashboard/plan")}>
         Plan
-      </button>
-      <button
-        className={tabClass("analyze")}
-        onClick={() => handleClick("analyze")}
+      </Link>
+      <Link
+        href="/dashboard/analyze"
+        className={tabClass("/dashboard/analyze")}
       >
         Analyze
-      </button>
+      </Link>
     </nav>
   );
 };
@@ -126,7 +87,7 @@ const NavBar = () => {
         <Authenticated>
           {(pathname === "/" || pathname === "/home") && (
             <Link
-              href="/dashboard"
+              href="/dashboard/track"
               className="hover:text-primary text-sm font-semibold"
             >
               Dashboard

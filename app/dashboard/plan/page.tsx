@@ -1,4 +1,3 @@
-//app/dashboard/plan/plan-client.tsx
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
@@ -17,7 +16,7 @@ import {
 
 type DateOption = "today" | "yesterday" | "custom";
 
-const PlanClient = () => {
+export default function PlanPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dateOption, setDateOption] = useState<DateOption>("today");
   const [planContent, setPlanContent] = useState("");
@@ -228,6 +227,4 @@ const PlanClient = () => {
       </Card>
     </div>
   );
-};
-
-export default PlanClient;
+}
