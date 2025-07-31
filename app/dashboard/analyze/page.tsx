@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { useAnalyticsData } from "../shared/hooks/use-dashboard-data";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { getTodayStart, getYesterdayStart, getCustomDateString } from "../shared/utils/day-utils";
+import {
+  getTodayStart,
+  getYesterdayStart,
+  getCustomDateString,
+} from "../shared/utils/day-utils";
 
 interface TimeEntry {
   taskTitle: string;
@@ -126,12 +130,12 @@ export default function AnalyzePage() {
 
   const formatDate = (dateString: string) => {
     if (!userSettings) return dateString;
-    
+
     const date = new Date(dateString);
     const dayStartHour = userSettings.dayStartHour;
     const todayStart = getTodayStart(dayStartHour);
     const yesterdayStart = getYesterdayStart(dayStartHour);
-    
+
     const todayDateString = new Date(todayStart).toDateString();
     const yesterdayDateString = new Date(yesterdayStart).toDateString();
 

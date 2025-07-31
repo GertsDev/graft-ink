@@ -96,7 +96,7 @@ export default function TaskCard({ task }: Props) {
   };
 
   return (
-    <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
+    <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.01]">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="w-full">

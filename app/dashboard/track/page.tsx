@@ -97,10 +97,10 @@ export default function TrackPage() {
       </Card>
 
       {/* Add Task Button */}
-      <div className="flex justify-end animate-in fade-in-0 duration-300 delay-200">
+      <div className="flex justify-end">
         <Button
           onClick={() => setShowAddTask(true)}
-          className="bg-primary transition-all duration-200 hover:scale-105 active:scale-95"
+          className="bg-primary transition-all duration-200 hover:scale-[1.02] active:scale-95"
           disabled={showAddTask}
         >
           Add Task
@@ -158,22 +158,16 @@ export default function TrackPage() {
       )}
 
       {/* Tasks List */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 animate-in fade-in-0 duration-500 delay-300">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {tasks.length === 0 ? (
-          <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
+          <Card className="animate-in fade-in-0 duration-300">
             <CardContent className="p-6 text-center text-gray-500">
               No tasks yet. Create your first task to start tracking time.
             </CardContent>
           </Card>
         ) : (
-          tasks.map((task, index) => (
-            <div
-              key={task._id}
-              className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <TaskCard task={task} />
-            </div>
+          tasks.map((task) => (
+            <TaskCard key={task._id} task={task} />
           ))
         )}
       </div>
