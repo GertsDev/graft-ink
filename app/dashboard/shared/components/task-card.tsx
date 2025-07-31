@@ -96,7 +96,7 @@ export default function TaskCard({ task }: Props) {
   };
 
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="w-full">
@@ -106,22 +106,22 @@ export default function TaskCard({ task }: Props) {
                   type="text"
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
-                  className="w-full rounded-md border px-2 py-1 text-base font-semibold"
+                  className="w-full rounded-md border px-2 py-1 text-base font-semibold transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
                   placeholder="Title"
                 />
                 <input
                   type="text"
                   value={tempTopic}
                   onChange={(e) => setTempTopic(e.target.value)}
-                  className="mt-1 w-full rounded-md border px-2 py-1 text-sm"
+                  className="mt-1 w-full rounded-md border px-2 py-1 text-sm transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
                   placeholder="Topic (optional)"
                 />
               </>
             ) : (
               <>
-                <h3 className="font-semibold">{task.title}</h3>
+                <h3 className="font-semibold transition-colors duration-200">{task.title}</h3>
                 {task.topic && (
-                  <p className="text-sm text-gray-500">{task.topic}</p>
+                  <p className="text-sm text-gray-500 transition-colors duration-200">{task.topic}</p>
                 )}
               </>
             )}
@@ -135,8 +135,9 @@ export default function TaskCard({ task }: Props) {
                   aria-label="Delete task"
                   onClick={handleDeleteTask}
                   disabled={isLoading}
+                  className="transition-all duration-200 hover:scale-110 hover:bg-red-50"
                 >
-                  <Trash2 className="h-4 w-4 text-red-600" />
+                  <Trash2 className="h-4 w-4 text-red-600 transition-colors duration-200" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -146,10 +147,11 @@ export default function TaskCard({ task }: Props) {
                   disabled={
                     !isTempDurationsValid || !tempTitle.trim() || isLoading
                   }
+                  className="transition-all duration-200 hover:scale-110 hover:bg-green-50"
                 >
                   <Check
                     className={
-                      `h-4 w-4 ` +
+                      `h-4 w-4 transition-colors duration-200 ` +
                       (isTempDurationsValid && tempTitle.trim()
                         ? "text-green-600"
                         : "text-gray-400")
@@ -164,8 +166,9 @@ export default function TaskCard({ task }: Props) {
                 aria-label="Edit task"
                 onClick={() => setIsEditing(true)}
                 disabled={isLoading}
+                className="transition-all duration-200 hover:scale-110"
               >
-                <PenLine className="h-4 w-4" />
+                <PenLine className="h-4 w-4 transition-colors duration-200" />
               </Button>
             )}
           </div>
@@ -185,7 +188,7 @@ export default function TaskCard({ task }: Props) {
                     onChange={(e) =>
                       handleTempDurationChange(idx, e.currentTarget.value)
                     }
-                    className="w-16 appearance-none rounded-md border px-2 py-1 text-center"
+                    className="w-16 appearance-none rounded-md border px-2 py-1 text-center transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
                   />
                 ))
               : timeDurations.map((d) => (
@@ -194,17 +197,18 @@ export default function TaskCard({ task }: Props) {
                     size="sm"
                     onClick={() => handleAddTime(d)}
                     disabled={isLoading}
+                    className="transition-all duration-200 hover:scale-110 active:scale-95"
                   >
                     +{d}m
                   </Button>
                 ))}
           </div>
           <div className="text-right text-sm">
-            <p className="font-medium">
-              Today: {formatTime(task.todayTime ?? 0)}
+            <p className="font-medium transition-all duration-300">
+              Today: <span className="font-mono">{formatTime(task.todayTime ?? 0)}</span>
             </p>
-            <p className="text-gray-500">
-              Total: {formatTime(task.totalTime ?? 0)}
+            <p className="text-gray-500 transition-colors duration-200">
+              Total: <span className="font-mono">{formatTime(task.totalTime ?? 0)}</span>
             </p>
           </div>
         </div>

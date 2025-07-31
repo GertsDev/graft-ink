@@ -50,12 +50,12 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6">
+      <div className="mb-6 animate-in fade-in-0 slide-in-from-top-4 duration-500">
         <Link
           href="/dashboard/track"
-          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm"
+          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm transition-all duration-200 hover:gap-3"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 transition-transform duration-200 hover:scale-110" />
           Back to Dashboard
         </Link>
         <h1 className="text-2xl font-bold">Settings</h1>
@@ -64,7 +64,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Card>
+      <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-150">
         <CardHeader>
           <CardTitle>Day Start Time</CardTitle>
           <CardDescription>
@@ -79,7 +79,7 @@ export default function SettingsPage() {
               value={effectiveDayStartHour.toString()}
               onValueChange={(value) => setDayStartHour(parseInt(value))}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full transition-all duration-200 hover:ring-2 hover:ring-ring/20">
                 <SelectValue placeholder="Select time">
                   {formatTime(effectiveDayStartHour)}
                 </SelectValue>
@@ -94,23 +94,30 @@ export default function SettingsPage() {
             </Select>
           </div>
 
-          <div className="text-muted-foreground text-sm">
-            <p>
+          <div className="text-muted-foreground text-sm animate-in fade-in-0 duration-500 delay-300">
+            <p className="transition-colors duration-200">
               <strong>Current setting:</strong> Your day starts at{" "}
-              {formatTime(userSettings?.dayStartHour ?? 0)}
+              <span className="font-mono transition-all duration-300">
+                {formatTime(userSettings?.dayStartHour ?? 0)}
+              </span>
             </p>
-            <p className="mt-2">
-              {`This means your "today" runs from`}
-              {formatTime(userSettings?.dayStartHour ?? 0)} to{" "}
-              {formatTime(((userSettings?.dayStartHour ?? 0) + 23) % 24)} the
-              next day.
+            <p className="mt-2 transition-colors duration-200">
+              {`This means your "today" runs from `}
+              <span className="font-mono">
+                {formatTime(userSettings?.dayStartHour ?? 0)}
+              </span>
+              {` to `}
+              <span className="font-mono">
+                {formatTime(((userSettings?.dayStartHour ?? 0) + 23) % 24)}
+              </span>
+              {` the next day.`}
             </p>
           </div>
 
           <Button
             onClick={handleSave}
             disabled={effectiveDayStartHour === userSettings?.dayStartHour}
-            className="w-full"
+            className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:opacity-50"
           >
             Save Settings
           </Button>

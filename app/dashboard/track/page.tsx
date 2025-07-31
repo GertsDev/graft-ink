@@ -43,8 +43,26 @@ export default function TrackPage() {
   if (isLoading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
-        <div className="h-32 animate-pulse rounded-lg bg-gray-100" />
-        <div className="h-64 animate-pulse rounded-lg bg-gray-100" />
+        {/* Daily Summary Skeleton */}
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="h-8 w-32 animate-pulse rounded bg-gray-200" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-2 w-full animate-pulse rounded bg-gray-200" />
+          </CardContent>
+        </Card>
+        
+        {/* Add Task Button Skeleton */}
+        <div className="flex justify-end">
+          <div className="h-10 w-24 animate-pulse rounded bg-gray-200" />
+        </div>
+        
+        {/* Tasks Grid Skeleton */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="h-32 animate-pulse rounded-lg bg-gray-200" />
+          <div className="h-32 animate-pulse rounded-lg bg-gray-200" />
+        </div>
       </div>
     );
   }
@@ -52,16 +70,18 @@ export default function TrackPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
       {/* Daily Summary Card */}
-      <Card>
+      <Card className="animate-in fade-in-0 slide-in-from-top-4 duration-500">
         <CardHeader className="flex flex-row items-start justify-between pb-2">
-          <h2 className="text-2xl font-bold">{formatTime(totalToday)} TODAY</h2>
-          <div className="text-muted-foreground text-right text-sm">
+          <h2 className="text-2xl font-bold transition-all duration-300">
+            <span className="font-mono">{formatTime(totalToday)}</span> TODAY
+          </h2>
+          <div className="text-muted-foreground text-right text-sm animate-in fade-in-0 duration-300 delay-100">
             {tasks
               .filter((t) => (t.todayTime ?? 0) > 0)
               .slice(0, 2)
               .map((t) => (
-                <p key={t._id}>
-                  {t.title}: {formatTime(t.todayTime ?? 0)}
+                <p key={t._id} className="transition-all duration-200">
+                  {t.title}: <span className="font-mono">{formatTime(t.todayTime ?? 0)}</span>
                 </p>
               ))}
           </div>
@@ -69,7 +89,7 @@ export default function TrackPage() {
         <CardContent>
           <div className="bg-secondary flex h-2 w-full overflow-hidden rounded-full">
             <div
-              className="h-full bg-orange-500"
+              className="h-full bg-orange-500 transition-all duration-500 ease-out"
               style={{ width: `${Math.min(100, (totalToday / 180) * 100)}%` }}
             />
           </div>
@@ -77,10 +97,10 @@ export default function TrackPage() {
       </Card>
 
       {/* Add Task Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end animate-in fade-in-0 duration-300 delay-200">
         <Button
           onClick={() => setShowAddTask(true)}
-          className="bg-primary"
+          className="bg-primary transition-all duration-200 hover:scale-105 active:scale-95"
           disabled={showAddTask}
         >
           Add Task
@@ -89,7 +109,7 @@ export default function TrackPage() {
 
       {/* Add Task Form */}
       {showAddTask && (
-        <Card>
+        <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
           <CardHeader>
             <h3 className="text-lg font-semibold">Create New Task</h3>
           </CardHeader>
@@ -100,7 +120,7 @@ export default function TrackPage() {
                 placeholder="Task title"
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
                 autoFocus
               />
             </div>
@@ -110,13 +130,14 @@ export default function TrackPage() {
                 placeholder="Topic (optional)"
                 value={newTaskTopic}
                 onChange={(e) => setNewTaskTopic(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
               />
             </div>
             <div className="flex gap-2">
               <Button
                 onClick={handleCreateTask}
                 disabled={!newTaskTitle.trim() || isCreating}
+                className="transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100"
               >
                 {isCreating ? "Creating..." : "Create Task"}
               </Button>
@@ -127,6 +148,7 @@ export default function TrackPage() {
                   setNewTaskTitle("");
                   setNewTaskTopic("");
                 }}
+                className="transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Cancel
               </Button>
@@ -136,15 +158,23 @@ export default function TrackPage() {
       )}
 
       {/* Tasks List */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 animate-in fade-in-0 duration-500 delay-300">
         {tasks.length === 0 ? (
-          <Card>
+          <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
             <CardContent className="p-6 text-center text-gray-500">
               No tasks yet. Create your first task to start tracking time.
             </CardContent>
           </Card>
         ) : (
-          tasks.map((task) => <TaskCard key={task._id} task={task} />)
+          tasks.map((task, index) => (
+            <div
+              key={task._id}
+              className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <TaskCard task={task} />
+            </div>
+          ))
         )}
       </div>
     </div>
