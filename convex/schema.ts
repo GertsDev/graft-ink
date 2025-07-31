@@ -33,6 +33,13 @@ const applicationTables = {
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
   }).index("by_user_date", ["userId", "date"]),
+
+  userSettings: defineTable({
+    userId: v.id("users"),
+    dayStartHour: v.number(), // 0-23, represents hour of day when user's day starts
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  }).index("by_user", ["userId"]),
 };
 
 export default defineSchema({

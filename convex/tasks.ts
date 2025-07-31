@@ -128,7 +128,7 @@ export const getUserTasksWithClientTodayTime = query({
       const taskEntries = allEntries.filter((e) => e.taskId === task._id);
       const totalTime = taskEntries.reduce((sum, e) => sum + e.duration, 0);
       const todayTime = taskEntries
-        .filter((e) => e.startedAt >= args.todayStart)
+        .filter((e) => e.startedAt >= args.todayStart && e.startedAt < args.todayStart + 24 * 60 * 60 * 1000)
         .reduce((sum, e) => sum + e.duration, 0);
 
       return { ...task, totalTime, todayTime };

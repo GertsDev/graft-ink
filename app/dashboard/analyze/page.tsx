@@ -3,6 +3,9 @@
 import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { useAnalyticsData } from "../shared/hooks/use-dashboard-data";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { getTodayStart, getYesterdayStart, getCustomDateString } from "../shared/utils/day-utils";
 
 interface TimeEntry {
   taskTitle: string;
@@ -27,6 +30,7 @@ interface DayData {
 export default function AnalyzePage() {
   const rawTimeEntries = useAnalyticsData();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
+  const userSettings = useQuery(api.users.getUserSettings);
 
   const timeEntries = useMemo(() => {
     return (rawTimeEntries as Record<string, GroupedEntries>) ?? {};
@@ -47,45 +51,37 @@ export default function AnalyzePage() {
   const filteredData = useMemo(() => {
     const entries = Object.values(timeEntries).flatMap((item) => item.entries);
 
-    if (entries.length === 0) return [];
+    if (entries.length === 0 || !userSettings) return [];
 
-    const now = new Date();
-    let startDate: Date;
+    const dayStartHour = userSettings.dayStartHour;
+    let startTimestamp: number;
 
     switch (selectedPeriod) {
       case "today":
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        startTimestamp = getTodayStart(dayStartHour);
         break;
       case "yesterday":
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() - 1,
-        );
+        startTimestamp = getYesterdayStart(dayStartHour);
         break;
       case "week":
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startTimestamp = getTodayStart(dayStartHour) - 7 * 24 * 60 * 60 * 1000;
         break;
       case "month":
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          now.getDate(),
-        );
+        startTimestamp = getTodayStart(dayStartHour) - 30 * 24 * 60 * 60 * 1000;
         break;
       default:
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startTimestamp = getTodayStart(dayStartHour) - 7 * 24 * 60 * 60 * 1000;
     }
 
     const filteredEntries = entries.filter(
-      (entry) => entry.startedAt >= startDate.getTime(),
+      (entry) => entry.startedAt >= startTimestamp,
     );
 
     // Group by day and topic
     const dayMap = new Map<string, Map<string, number>>();
 
     filteredEntries.forEach((entry) => {
-      const date = new Date(entry.startedAt).toDateString();
+      const date = getCustomDateString(entry.startedAt, dayStartHour);
       const topic = entry.taskTopic || "Uncategorized";
 
       if (!dayMap.has(date)) {
@@ -120,7 +116,7 @@ export default function AnalyzePage() {
     });
 
     return result;
-  }, [timeEntries, selectedPeriod]);
+  }, [timeEntries, selectedPeriod, userSettings]);
 
   const formatTime = (minutes: number) => {
     const h = Math.floor(minutes / 60);
@@ -129,12 +125,18 @@ export default function AnalyzePage() {
   };
 
   const formatDate = (dateString: string) => {
+    if (!userSettings) return dateString;
+    
     const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const dayStartHour = userSettings.dayStartHour;
+    const todayStart = getTodayStart(dayStartHour);
+    const yesterdayStart = getYesterdayStart(dayStartHour);
+    
+    const todayDateString = new Date(todayStart).toDateString();
+    const yesterdayDateString = new Date(yesterdayStart).toDateString();
 
-    if (date.toDateString() === today.toDateString()) return "Today";
-    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+    if (dateString === todayDateString) return "Today";
+    if (dateString === yesterdayDateString) return "Yesterday";
 
     return date.toLocaleDateString("en-US", {
       weekday: "short",

@@ -31,8 +31,7 @@ export default function AuthDropdown() {
   };
 
   const handleSettings = () => {
-    // TODO: Implement settings functionality
-    console.log("Settings clicked - to be implemented");
+    router.push("/settings");
     setOpen(false);
   };
 

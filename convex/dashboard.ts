@@ -2,7 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Helper function to check if timestamp is today (server-side)
+// Helper function to check if timestamp is within the user's "today" (custom day boundary)
 function isToday(timestamp: number, todayStart: number): boolean {
   return (
     timestamp >= todayStart && timestamp < todayStart + 24 * 60 * 60 * 1000
