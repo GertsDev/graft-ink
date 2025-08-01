@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip";
 import { useDashboardData } from "../shared/hooks/use-dashboard-data";
 import { useTaskOperations } from "../shared/hooks/use-task-operations";
 import { formatTime } from "../shared/utils/time-utils";
@@ -11,7 +17,7 @@ import TaskCard from "../shared/components/task-card";
 
 export default function TrackPage() {
   const { tasks, totalToday, isLoading } = useDashboardData();
-  
+
   const sortedTasks = useMemo(() => {
     return [...tasks].sort((a, b) => b._creationTime - a._creationTime);
   }, [tasks]);
@@ -45,13 +51,34 @@ export default function TrackPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       handleCancelTask();
-    } else if (e.key === 'Enter' && !e.shiftKey) {
+    } else if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleCreateTask();
     }
   };
+
+  // Global shortcut for Alt+T to open add task form
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.altKey &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.metaKey &&
+        e.code === "KeyT"
+      ) {
+        e.preventDefault();
+        if (!showAddTask) {
+          setShowAddTask(true);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [showAddTask]);
 
   if (isLoading) {
     return (
@@ -114,18 +141,33 @@ export default function TrackPage() {
 
       {/* Add Task Button */}
       <div className="flex justify-end">
-        <Button
-          onClick={() => setShowAddTask(true)}
-          className="bg-primary transition-all duration-200 hover:scale-[1.02] active:scale-95"
-          disabled={showAddTask}
-        >
-          Add Task
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => setShowAddTask(true)}
+                className="bg-primary transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                disabled={showAddTask}
+              >
+                Add Task
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-muted/70">
+              <p>
+                {typeof window !== "undefined" &&
+                navigator.userAgent.toLowerCase().includes("mac")
+                  ? "⌥"
+                  : "Alt"}{" "}
+                + T
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Add Task Form */}
       {showAddTask && (
-        <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
+        <Card className="animate-in fade-in-0 slide-in-from-bottom-4 flex justify-end duration-300">
           <CardHeader>
             <h3 className="text-lg font-semibold">Create New Task</h3>
           </CardHeader>

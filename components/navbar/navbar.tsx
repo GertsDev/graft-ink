@@ -5,9 +5,24 @@ import ThemeToggle from "./theme-toggle";
 import AuthDropdown from "../auth/oauth/auth-dropdown";
 import { usePathname } from "next/navigation";
 import { Authenticated } from "convex/react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+
+// Detect if user is on Mac or Windows for keyboard shortcuts
+const getShortcutKey = () => {
+  if (typeof window !== "undefined") {
+    return navigator.userAgent.toLowerCase().includes("mac") ? "⌥" : "Alt";
+  }
+  return "Alt";
+};
 
 const DesktopDashboardTabs = () => {
   const pathname = usePathname();
+  const shortcutKey = getShortcutKey();
 
   if (!pathname.startsWith("/dashboard")) return null;
 
@@ -17,20 +32,49 @@ const DesktopDashboardTabs = () => {
     }`;
 
   return (
-    <nav className="flex gap-4">
-      <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
-        Track
-      </Link>
-      <Link href="/dashboard/plan" className={tabClass("/dashboard/plan")}>
-        Plan
-      </Link>
-      <Link
-        href="/dashboard/analyze"
-        className={tabClass("/dashboard/analyze")}
-      >
-        Analyze
-      </Link>
-    </nav>
+    <TooltipProvider>
+      <nav className="flex gap-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/dashboard/track"
+              className={tabClass("/dashboard/track")}
+            >
+              Track
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{shortcutKey} + 1</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/dashboard/plan"
+              className={tabClass("/dashboard/plan")}
+            >
+              Plan
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{shortcutKey} + 2</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/dashboard/analyze"
+              className={tabClass("/dashboard/analyze")}
+            >
+              Analyze
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{shortcutKey} + 3</p>
+          </TooltipContent>
+        </Tooltip>
+      </nav>
+    </TooltipProvider>
   );
 };
 
@@ -45,7 +89,7 @@ export const MobileBottomTabs = () => {
     }`;
 
   return (
-    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden px-4 py-2 pb-7">
+    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t px-4 py-2 pb-7 md:hidden">
       <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
         Track
       </Link>
