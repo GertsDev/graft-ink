@@ -5,12 +5,19 @@ import ThemeToggle from "./theme-toggle";
 import AuthDropdown from "../auth/oauth/auth-dropdown";
 import { usePathname } from "next/navigation";
 import { Authenticated } from "convex/react";
+import { Menu } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 // Detect if user is on Mac or Windows for keyboard shortcuts
 const getShortcutKey = () => {
@@ -78,31 +85,44 @@ const DesktopDashboardTabs = () => {
   );
 };
 
-export const MobileBottomTabs = () => {
+export const MobileDropdownMenu = () => {
   const pathname = usePathname();
 
   if (!pathname.startsWith("/dashboard")) return null;
 
-  const tabClass = (path: string) =>
-    `flex-1 text-center py-2 text-base font-medium ${
-      pathname === path ? "text-primary" : "opacity-70"
-    }`;
+  const getCurrentPageName = () => {
+    if (pathname === "/dashboard/track") return "Track";
+    if (pathname === "/dashboard/plan") return "Plan";
+    if (pathname === "/dashboard/analyze") return "Analyze";
+    return "Dashboard";
+  };
 
   return (
-    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t px-4 py-2 pb-7 md:hidden">
-      <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
-        Track
-      </Link>
-      <Link href="/dashboard/plan" className={tabClass("/dashboard/plan")}>
-        Plan
-      </Link>
-      <Link
-        href="/dashboard/analyze"
-        className={tabClass("/dashboard/analyze")}
-      >
-        Analyze
-      </Link>
-    </nav>
+    <div className="md:hidden">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+          <Menu className="h-4 w-4" />
+          {getCurrentPageName()}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/track" className="w-full cursor-pointer">
+              Track
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/plan" className="w-full cursor-pointer">
+              Plan
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/analyze" className="w-full cursor-pointer">
+              Analyze
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 
@@ -128,6 +148,7 @@ const NavBar = () => {
       </div>
 
       <div className="flex items-center gap-4 pr-4">
+        <MobileDropdownMenu />
         <Authenticated>
           {(pathname === "/" || pathname === "/home") && (
             <Link
