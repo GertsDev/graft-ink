@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format, isToday, isYesterday, subDays, addDays } from "date-fns";
 import { Calendar } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
@@ -18,10 +18,8 @@ type DateOption = "today" | "yesterday" | "custom";
 
 export default function PlanPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [dateOption, setDateOption] = useState<DateOption>("today");
   const [planContent, setPlanContent] = useState("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const dateString = format(selectedDate, "yyyy-MM-dd");
   const upsertPlan = useMutation(api.plans.upsertPlan);
@@ -48,7 +46,6 @@ export default function PlanPage() {
 
   // Handle date option changes
   const handleDateOptionChange = (option: DateOption) => {
-    setDateOption(option);
     const today = new Date();
 
     switch (option) {
@@ -64,10 +61,33 @@ export default function PlanPage() {
     }
   };
 
+  const { todayString, yesterdayString, tomorrowString, selectedString } =
+    useMemo(() => {
+      const today = new Date();
+      return {
+        todayString: format(today, "yyyy-MM-dd"),
+        yesterdayString: format(subDays(today, 1), "yyyy-MM-dd"),
+        tomorrowString: format(addDays(today, 1), "yyyy-MM-dd"),
+        selectedString: format(selectedDate, "yyyy-MM-dd"),
+      };
+    }, [selectedDate]);
+
+  const isDateOptionActive = (option: DateOption) => {
+    switch (option) {
+      case "today":
+        return selectedString === todayString;
+      case "yesterday":
+        return selectedString === yesterdayString;
+      default:
+        return false;
+    }
+  };
+
+  const isTomorrowActive = () => selectedString === tomorrowString;
+
   // Handle custom date selection
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    setDateOption("custom");
     setIsCalendarOpen(false);
   };
 
@@ -78,48 +98,39 @@ export default function PlanPage() {
     return format(date, "MMM d, yyyy");
   };
 
-  // Generate calendar days
-  const generateCalendarDays = () => {
+  const { calendarDays, today } = useMemo(() => {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
-
-    // Get first day of month and how many days in month
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-
-    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
 
-    return days;
-  };
-
-  const calendarDays = generateCalendarDays();
-  const today = new Date();
+    return { calendarDays: days, today };
+  }, []);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col px-4">
       {/* Plan Content */}
       <Card className="flex-1">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-light">
               {format(selectedDate, "EEEE, MMMM d, yyyy")}
             </h3>
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant={
+                  isDateOptionActive("yesterday") ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => handleDateOptionChange("yesterday")}
                 className="h-8 px-3 text-xs"
@@ -127,7 +138,7 @@ export default function PlanPage() {
                 Yesterday
               </Button>
               <Button
-                variant="outline"
+                variant={isDateOptionActive("today") ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleDateOptionChange("today")}
                 className="h-8 px-3 text-xs"
@@ -135,7 +146,7 @@ export default function PlanPage() {
                 Today
               </Button>
               <Button
-                variant="outline"
+                variant={isTomorrowActive() ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedDate(addDays(selectedDate, 1))}
                 className="h-8 px-3 text-xs"
@@ -191,7 +202,6 @@ export default function PlanPage() {
         </CardHeader>
         <CardContent>
           <textarea
-            ref={textareaRef}
             className="focus:border-primary min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 font-mono text-sm leading-relaxed focus:outline-none"
             id="plan"
             value={planContent}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { useTaskOperations } from "../hooks/use-task-operations";
 import { useTimeDurations } from "../../../hooks/use-time-durations";
+import { formatTime } from "../utils/time-utils";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 interface TaskWithTime {
@@ -89,11 +90,6 @@ export default function TaskCard({ task }: Props) {
     }
   };
 
-  const formatTime = (minutes: number) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return h ? `${h}h ${m}m` : `${m}m`;
-  };
 
   return (
     <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.01]">

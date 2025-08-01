@@ -1,22 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
 import { useDashboardData } from "../shared/hooks/use-dashboard-data";
 import { useTaskOperations } from "../shared/hooks/use-task-operations";
+import { formatTime } from "../shared/utils/time-utils";
 
 import TaskCard from "../shared/components/task-card";
 
-// Helper function
-function formatTime(minutes: number) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h ? `${h}h ${m}m` : `${m}m`;
-}
-
 export default function TrackPage() {
   const { tasks, totalToday, isLoading } = useDashboardData();
+  
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) => b._creationTime - a._creationTime);
+  }, [tasks]);
   const { createTask } = useTaskOperations();
 
   const [showAddTask, setShowAddTask] = useState(false);
@@ -169,7 +167,7 @@ export default function TrackPage() {
             </CardContent>
           </Card>
         ) : (
-          tasks.map((task) => <TaskCard key={task._id} task={task} />)
+          sortedTasks.map((task) => <TaskCard key={task._id} task={task} />)
         )}
       </div>
     </div>
