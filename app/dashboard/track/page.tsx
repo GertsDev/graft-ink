@@ -38,6 +38,21 @@ export default function TrackPage() {
     }
   };
 
+  const handleCancelTask = () => {
+    setShowAddTask(false);
+    setNewTaskTitle("");
+    setNewTaskTopic("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      handleCancelTask();
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleCreateTask();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
@@ -121,6 +136,7 @@ export default function TrackPage() {
                 placeholder="Task title"
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="focus:ring-ring/20 focus:border-primary w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus:ring-2"
                 autoFocus
               />
@@ -131,6 +147,7 @@ export default function TrackPage() {
                 placeholder="Topic (optional)"
                 value={newTaskTopic}
                 onChange={(e) => setNewTaskTopic(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="focus:ring-ring/20 focus:border-primary w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus:ring-2"
               />
             </div>
@@ -144,11 +161,7 @@ export default function TrackPage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  setShowAddTask(false);
-                  setNewTaskTitle("");
-                  setNewTaskTopic("");
-                }}
+                onClick={handleCancelTask}
                 className="transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Cancel
