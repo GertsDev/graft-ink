@@ -49,7 +49,4 @@ package-lock.json
 # Local Netlify folder
 .netlify
 
-./app/server/*
 
-.claude.md
-.cursor
