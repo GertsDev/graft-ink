@@ -45,7 +45,7 @@ export const MobileBottomTabs = () => {
     }`;
 
   return (
-    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t py-1 md:hidden">
+    <nav className="bg-background sticky bottom-0 z-50 flex justify-around border-t md:hidden px-4 py-2 pb-7">
       <Link href="/dashboard/track" className={tabClass("/dashboard/track")}>
         Track
       </Link>

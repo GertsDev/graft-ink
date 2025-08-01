@@ -216,7 +216,7 @@ export default function PlanPage() {
         <CardContent className="p-6">
           <textarea
             ref={textareaRef}
-            className="focus:border-primary min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 text-sm leading-relaxed focus:outline-none"
+            className="focus:border-primary min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 font-mono text-sm leading-relaxed focus:outline-none"
             id="plan"
             value={planContent}
             onChange={handleChange}
