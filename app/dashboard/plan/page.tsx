@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { format, isToday, isYesterday, subDays } from "date-fns";
+import { format, isToday, isYesterday, subDays, addDays } from "date-fns";
 import { Calendar } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -109,111 +109,87 @@ export default function PlanPage() {
   const today = new Date();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
-      {/* Date Selection */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-semibold">Daily Plan</h2>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Today/Yesterday Buttons */}
-            <Button
-              variant={dateOption === "today" ? "default" : "outline"}
-              onClick={() => handleDateOptionChange("today")}
-              size="sm"
-            >
-              Today
-            </Button>
-
-            <Button
-              variant={dateOption === "yesterday" ? "default" : "outline"}
-              onClick={() => handleDateOptionChange("yesterday")}
-              size="sm"
-            >
-              Yesterday
-            </Button>
-
-            {/* Calendar Picker */}
-            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={dateOption === "custom" ? "default" : "outline"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Calendar className="h-4 w-4" />
-                  {dateOption === "custom"
-                    ? formatDisplayDate(selectedDate)
-                    : "Pick Date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <div className="p-3">
-                  <div className="mb-3 text-center font-semibold">
-                    {format(today, "MMMM yyyy")}
-                  </div>
-
-                  {/* Calendar Grid */}
-                  <div className="grid grid-cols-7 gap-1">
-                    {/* Day headers */}
-                    {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                      <div
-                        key={day}
-                        className="p-2 text-center text-xs font-medium text-gray-500"
-                      >
-                        {day}
-                      </div>
-                    ))}
-
-                    {/* Calendar days */}
-                    {calendarDays.map((day, index) => (
-                      <div key={index} className="p-1">
-                        {day ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={`h-8 w-8 p-0 text-xs ${
-                              format(day, "yyyy-MM-dd") ===
-                              format(selectedDate, "yyyy-MM-dd")
-                                ? "bg-primary text-primary-foreground"
-                                : isToday(day)
-                                  ? "bg-accent text-accent-foreground"
-                                  : ""
-                            }`}
-                            onClick={() => handleDateSelect(day)}
-                          >
-                            {day.getDate()}
-                          </Button>
-                        ) : (
-                          <div className="h-8 w-8" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            {/* Selected Date Display */}
-            <div className="ml-auto text-sm text-gray-600">
-              Plan for:{" "}
-              <span className="font-medium">
-                {formatDisplayDate(selectedDate)}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+    <div className="mx-auto flex w-full max-w-4xl flex-col px-4">
       {/* Plan Content */}
       <Card className="flex-1">
         <CardHeader>
-          <h3 className="text-lg font-semibold">
-            {formatDisplayDate(selectedDate)} Plan
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-light">
+              {format(selectedDate, "EEEE, MMMM d, yyyy")}
+            </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDateOptionChange("yesterday")}
+                className="h-8 px-3 text-xs"
+              >
+                Yesterday
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDateOptionChange("today")}
+                className="h-8 px-3 text-xs"
+              >
+                Today
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedDate(addDays(selectedDate, 1))}
+                className="h-8 px-3 text-xs"
+              >
+                Tomorrow
+              </Button>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                    <Calendar className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="end">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium">
+                        {format(today, "MMMM yyyy")}
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                      {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+                        <div
+                          key={day}
+                          className="p-1 font-medium text-gray-500"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                      {calendarDays.map((day, index) => (
+                        <button
+                          key={index}
+                          onClick={() => day && handleDateSelect(day)}
+                          disabled={!day}
+                          className={`hover:bg-primary/40 rounded p-1 text-xs ${
+                            day &&
+                            format(day, "yyyy-MM-dd") ===
+                              format(selectedDate, "yyyy-MM-dd")
+                              ? "bg-muted/60 text-white hover:bg-blue-600"
+                              : day && isToday(day)
+                                ? "bg-primary/60 text-primary-foreground hover:bg-blue-600"
+                                : ""
+                          }`}
+                        >
+                          {day ? day.getDate() : ""}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent>
           <textarea
             ref={textareaRef}
             className="focus:border-primary min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 font-mono text-sm leading-relaxed focus:outline-none"
