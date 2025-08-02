@@ -22,6 +22,188 @@ import {
 } from "lucide-react";
 
 export default function MarketingPage() {
+  const FullScreenIntro = () => {
+    const words = ["Plan", "Track", "Analyze"];
+    const [currentWordIndex, setCurrentWordIndex] = React.useState(0);
+    const [showGraft, setShowGraft] = React.useState(false);
+    const [showTagline, setShowTagline] = React.useState(false);
+    const [introComplete, setIntroComplete] = React.useState(false);
+
+    React.useEffect(() => {
+      const handleKeyPress = (event: KeyboardEvent) => {
+        if (event.code === 'Space') {
+          event.preventDefault();
+          setIntroComplete(true);
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyPress);
+
+      const timer = setTimeout(() => {
+        if (currentWordIndex < words.length - 1) {
+          setCurrentWordIndex(currentWordIndex + 1);
+        } else {
+          setTimeout(() => {
+            setShowGraft(true);
+            setTimeout(() => {
+              setShowTagline(true);
+              setTimeout(() => {
+                setIntroComplete(true);
+              }, 2500);
+            }, 1500);
+          }, 800);
+        }
+      }, 1500);
+
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener('keydown', handleKeyPress);
+      };
+    }, [currentWordIndex, words.length]);
+
+    if (introComplete) {
+      return null;
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: introComplete ? 0 : 1 }}
+        transition={{ duration: 1 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-background"
+      >
+        <div className="flex flex-col items-center justify-center text-center">
+          {!showGraft && !showTagline && (
+            <motion.div
+              key={currentWordIndex}
+              initial={{ opacity: 0, scale: 0.3, rotateY: -180 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              exit={{ opacity: 0, scale: 0.3, rotateY: 180 }}
+              transition={{ 
+                duration: 1,
+                type: "spring",
+                stiffness: 150,
+                damping: 25
+              }}
+              className="text-8xl md:text-9xl lg:text-[12rem] font-bold text-primary"
+            >
+              {words[currentWordIndex]}
+            </motion.div>
+          )}
+          
+          {showGraft && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ 
+                duration: 1.5,
+                type: "spring",
+                stiffness: 80,
+                damping: 20
+              }}
+              className="relative mb-8"
+            >
+              <motion.div
+                animate={{ 
+                  filter: [
+                    "drop-shadow(0 0 0px hsl(var(--primary)))",
+                    "drop-shadow(0 0 40px hsl(var(--primary) / 0.8))",
+                    "drop-shadow(0 0 80px hsl(var(--primary) / 0.6))",
+                    "drop-shadow(0 0 40px hsl(var(--primary) / 0.8))",
+                    "drop-shadow(0 0 0px hsl(var(--primary)))"
+                  ]
+                }}
+                transition={{ 
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="text-8xl md:text-9xl lg:text-[12rem] font-bold text-primary"
+              >
+                GRAFT
+              </motion.div>
+              
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.2 }}
+                transition={{ delay: 0.8, duration: 1.2 }}
+                className="absolute inset-0 -z-10 bg-primary/20 blur-3xl rounded-full scale-150"
+              />
+            </motion.div>
+          )}
+          
+          {showTagline && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 1.2,
+                type: "spring",
+                stiffness: 100,
+                damping: 25
+              }}
+              className="text-2xl md:text-4xl lg:text-5xl font-light text-muted-foreground"
+            >
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+              >
+                your way
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.8 }}
+                className="block mt-2"
+              >
+                to productivity
+              </motion.span>
+            </motion.div>
+          )}
+        </div>
+        
+        <motion.div
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.3, 0.1]
+          }}
+          transition={{ 
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent"
+        />
+        
+        {/* Skip hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ 
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="flex items-center gap-2 text-muted-foreground text-sm"
+          >
+            <div className="px-2 py-1 border border-muted rounded text-xs font-mono">
+              SPACE
+            </div>
+            <span>to skip</span>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    );
+  };
+
   const features = [
     {
       icon: Timer,
@@ -86,23 +268,25 @@ export default function MarketingPage() {
   ];
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-      {/* Hero Section */}
-      <section className="relative flex min-h-screen justify-center overflow-hidden px-6 py-12 lg:px-8">
+    <>
+      <FullScreenIntro />
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        {/* Hero Section */}
+        <section className="relative flex min-h-screen justify-center overflow-hidden px-6 py-12 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="mx-auto max-w-4xl text-center"
         >
-          {/* Main headline with gradient text */}
+          {/* Main headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-foreground text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
           >
-            <span className="bg-gradient-to-r from-[#D97708] via-orange-400 to-yellow-300 bg-clip-text text-transparent">
+            <span className="text-primary">
               Graft your way
             </span>
             <br />
@@ -342,5 +526,6 @@ export default function MarketingPage() {
         </motion.div>
       </section>
     </div>
+    </>
   );
 }
