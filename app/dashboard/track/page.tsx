@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "../../../shared/components/ui/card";
+import { Button } from "../../../shared/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../../components/ui/tooltip";
-import { useDashboardData } from "../shared/hooks/use-dashboard-data";
-import { useTaskOperations } from "../shared/hooks/use-task-operations";
-import { formatTime } from "../shared/utils/time-utils";
+} from "../../../shared/components/ui/tooltip";
+import { useDashboardData } from "../../../shared/features/dashboard/_hooks/use-dashboard-data";
+import { useTaskOperations } from "../../../shared/features/dashboard/_hooks/use-task-operations";
+import { formatTime } from "../../../shared/features/dashboard/_utils/time-utils";
 
-import TaskCard from "../shared/components/task-card";
+import TaskCard from "../../../shared/features/dashboard/components/task-card";
 
 export default function TrackPage() {
   const { tasks, totalToday, isLoading } = useDashboardData();

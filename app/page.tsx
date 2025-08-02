@@ -1,5 +1,5 @@
 // app/page.tsx
-import MarketingPage from "../components/marketing/marketing-page";
+import MarketingPage from "../shared/components/marketing/marketing-page";
 
 export default function Home() {
   return (

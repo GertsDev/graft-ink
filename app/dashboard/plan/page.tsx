@@ -5,14 +5,18 @@ import { format, isToday, isYesterday, subDays, addDays } from "date-fns";
 import { Calendar } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useDebounce } from "../../hooks/use-debounce";
-import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import { useDebounce } from "../../../shared/features/dashboard/_hooks/use-debounce";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "../../../shared/components/ui/card";
+import { Button } from "../../../shared/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../../components/ui/popover";
+} from "../../../shared/components/ui/popover";
 
 type DateOption = "today" | "yesterday" | "custom";
 

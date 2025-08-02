@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { PenLine, Trash2, Check } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../../../../components/ui/card";
-import { Button } from "../../../../components/ui/button";
-import { useTaskOperations } from "../hooks/use-task-operations";
-import { useTimeDurations } from "../../../hooks/use-time-durations";
-import { formatTime } from "../utils/time-utils";
+import { Card, CardContent, CardHeader } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { useTaskOperations } from "../_hooks/use-task-operations";
+import { useTimeDurations } from "../_hooks/use-time-durations";
+import { formatTime } from "../_utils/time-utils";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 interface TaskWithTime {
@@ -90,9 +90,8 @@ export default function TaskCard({ task }: Props) {
     }
   };
 
-
   return (
-    <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.01]">
+    <Card className="transition-all duration-200 hover:scale-[1.01] hover:shadow-md">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="w-full">
@@ -102,22 +101,26 @@ export default function TaskCard({ task }: Props) {
                   type="text"
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
-                  className="w-full rounded-md border px-2 py-1 text-base font-semibold transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
+                  className="focus:ring-ring/20 focus:border-primary w-full rounded-md border px-2 py-1 text-base font-semibold transition-all duration-200 focus:ring-2"
                   placeholder="Title"
                 />
                 <input
                   type="text"
                   value={tempTopic}
                   onChange={(e) => setTempTopic(e.target.value)}
-                  className="mt-1 w-full rounded-md border px-2 py-1 text-sm transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
+                  className="focus:ring-ring/20 focus:border-primary mt-1 w-full rounded-md border px-2 py-1 text-sm transition-all duration-200 focus:ring-2"
                   placeholder="Topic (optional)"
                 />
               </>
             ) : (
               <>
-                <h3 className="font-semibold transition-colors duration-200">{task.title}</h3>
+                <h3 className="font-semibold transition-colors duration-200">
+                  {task.title}
+                </h3>
                 {task.topic && (
-                  <p className="text-sm text-gray-500 transition-colors duration-200">{task.topic}</p>
+                  <p className="text-sm text-gray-500 transition-colors duration-200">
+                    {task.topic}
+                  </p>
                 )}
               </>
             )}
@@ -184,7 +187,7 @@ export default function TaskCard({ task }: Props) {
                     onChange={(e) =>
                       handleTempDurationChange(idx, e.currentTarget.value)
                     }
-                    className="w-16 appearance-none rounded-md border px-2 py-1 text-center transition-all duration-200 focus:ring-2 focus:ring-ring/20 focus:border-primary"
+                    className="focus:ring-ring/20 focus:border-primary w-16 appearance-none rounded-md border px-2 py-1 text-center transition-all duration-200 focus:ring-2"
                   />
                 ))
               : timeDurations.map((d) => (
@@ -201,10 +204,16 @@ export default function TaskCard({ task }: Props) {
           </div>
           <div className="text-right text-sm">
             <p className="font-medium transition-all duration-300">
-              Today: <span className="font-mono">{formatTime(task.todayTime ?? 0)}</span>
+              Today:{" "}
+              <span className="font-mono">
+                {formatTime(task.todayTime ?? 0)}
+              </span>
             </p>
             <p className="text-gray-500 transition-colors duration-200">
-              Total: <span className="font-mono">{formatTime(task.totalTime ?? 0)}</span>
+              Total:{" "}
+              <span className="font-mono">
+                {formatTime(task.totalTime ?? 0)}
+              </span>
             </p>
           </div>
         </div>

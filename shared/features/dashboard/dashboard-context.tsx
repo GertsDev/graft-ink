@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import { PreloadedQuery } from "./types";
+import { PreloadedQuery } from "./track/types";
 
 interface DashboardDataContextValue {
   preloadedTasks?: PreloadedQuery;

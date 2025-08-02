@@ -1,42 +1,29 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
-import { useAnalyticsData } from "../shared/hooks/use-dashboard-data";
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import React, { useState } from "react";
 import {
-  getTodayStart,
-  getYesterdayStart,
-  getCustomDateString,
-} from "../shared/utils/day-utils";
+  Card,
+  CardContent,
+  CardHeader,
+} from "../../../shared/components/ui/card";
+import { Button } from "../../../shared/components/ui/button";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-} from "../../../components/ui/chart";
-
-interface TimeEntry {
-  taskTitle: string;
-  taskTopic?: string;
-  duration: number;
-  startedAt: number;
-}
-
-interface GroupedEntries {
-  total: number;
-  entries: TimeEntry[];
-}
-
-type TimePeriod = "today" | "yesterday" | "week" | "month";
-
-interface DayData {
-  date: string;
-  topics: { topic: string; time: number; color: string }[];
-  total: number;
-}
+} from "../../../shared/components/ui/chart";
+import {
+  useAnalyzeData,
+  getTopicColor,
+  type TimePeriod,
+  type DayData,
+} from "../../../shared/features/dashboard/_hooks/use-analyze-data";
+import {
+  formatTime,
+  formatDate,
+  PERIOD_LABELS,
+} from "../../../shared/features/dashboard/_utils/format-utils";
 
 interface WeekBarChartProps {
   data: DayData[];
@@ -47,48 +34,47 @@ interface WeekBarChartProps {
 function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
   // Get all unique topics for stacking
   const allTopics = Array.from(
-    new Set(data.flatMap(day => day.topics.map(topic => topic.topic)))
+    new Set(data.flatMap((day) => day.topics.map((topic) => topic.topic))),
   );
 
   // If no topics, show total bars with single color
   const hasTopics = allTopics.length > 0;
 
   // Transform data for recharts
-  const chartData = data.map(day => {
+  const chartData = data.map((day) => {
     const chartEntry: Record<string, string | number> = {
       day: formatDate(day.date),
       dayFull: day.date,
-      total: day.total
+      total: day.total,
     };
-    
+
     if (hasTopics) {
       // Add each topic as a separate data key
-      day.topics.forEach(topic => {
+      day.topics.forEach((topic) => {
         chartEntry[topic.topic] = topic.time;
       });
     }
-    
+
     return chartEntry;
   });
 
   // Create chart config with analyze theme colors
   const chartConfig: ChartConfig = {};
-  
+
   if (hasTopics) {
     allTopics.forEach((topic, index) => {
       const analyzeColorIndex = (index % 5) + 1;
       chartConfig[topic] = {
         label: topic,
-        color: `var(--analyze-${analyzeColorIndex})`
+        color: `var(--analyze-${analyzeColorIndex})`,
       };
     });
   } else {
-    chartConfig['total'] = {
-      label: 'Total Time',
-      color: 'var(--analyze-1)'
+    chartConfig["total"] = {
+      label: "Total Time",
+      color: "var(--analyze-1)",
     };
   }
-
 
   return (
     <div className="h-80 w-full">
@@ -110,50 +96,59 @@ function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
             tickMargin={10}
             axisLine={false}
             fontSize={12}
-            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+            tick={{ fill: "hsl(var(--muted-foreground))" }}
           />
           <YAxis
             tickFormatter={(value) => {
-              if (value === 0) return '';
+              if (value === 0) return "";
               const h = Math.floor(value / 60);
               const m = value % 60;
               if (h && m) return `${h}h ${m}m`;
               if (h) return `${h}h`;
               if (m) return `${m}m`;
-              return '';
+              return "";
             }}
             tickLine={false}
             axisLine={false}
             fontSize={12}
-            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+            tick={{ fill: "hsl(var(--muted-foreground))" }}
             width={50}
           />
           <ChartTooltip
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
-              
+
               const data = payload[0]?.payload;
               if (!data) return null;
-              
+
               return (
-                <div className="rounded-lg border bg-background p-3 shadow-md">
-                  <p className="font-medium mb-2">{label}</p>
+                <div className="bg-background rounded-lg border p-3 shadow-md">
+                  <p className="mb-2 font-medium">{label}</p>
                   <div className="space-y-1">
                     {allTopics.map((topic) => {
                       const value = data[topic];
                       if (!value) return null;
                       return (
-                        <div key={topic} className="flex items-center gap-2 text-sm">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: chartConfig[topic]?.color }}
+                        <div
+                          key={topic}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{
+                              backgroundColor: chartConfig[topic]?.color,
+                            }}
                           />
-                          <span>{topic}: {formatTime(value)}</span>
+                          <span>
+                            {topic}: {formatTime(value)}
+                          </span>
                         </div>
                       );
                     })}
-                    <div className="border-t pt-1 mt-2">
-                      <span className="font-medium text-sm">Total: {formatTime(data.total)}</span>
+                    <div className="mt-2 border-t pt-1">
+                      <span className="text-sm font-medium">
+                        Total: {formatTime(data.total)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -174,11 +169,7 @@ function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
               );
             })
           ) : (
-            <Bar
-              dataKey="total"
-              fill="var(--analyze-1)"
-              radius={0}
-            />
+            <Bar dataKey="total" fill="var(--analyze-1)" radius={0} />
           )}
         </BarChart>
       </ChartContainer>
@@ -187,172 +178,29 @@ function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
 }
 
 export default function AnalyzePage() {
-  const rawTimeEntries = useAnalyticsData();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
-  const userSettings = useQuery(api.users.getUserSettings);
+  const { filteredData, maxTime, isLoading } = useAnalyzeData(selectedPeriod);
 
-  const timeEntries = useMemo(() => {
-    return (rawTimeEntries as Record<string, GroupedEntries>) ?? {};
-  }, [rawTimeEntries]);
-
-  // Generate consistent colors for topics using custom analyze colors
-  const getTopicColor = (topic: string): string => {
-    const colors = [
-      "bg-analyze-1",
-      "bg-analyze-2", 
-      "bg-analyze-3",
-      "bg-analyze-4",
-      "bg-analyze-5",
-    ];
-
-    // Simple hash function to consistently assign colors
-    let hash = 0;
-    for (let i = 0; i < topic.length; i++) {
-      hash = topic.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
+  // Helper function for date formatting with user settings
+  const formatDateWithSettings = (dateString: string) => {
+    // This will be implemented when userSettings is available
+    // For now, use a default dayStartHour of 0
+    return formatDate(dateString, selectedPeriod, 0);
   };
 
-  const filteredData = useMemo(() => {
-    const entries = Object.values(timeEntries).flatMap((item) => item.entries);
-
-    if (entries.length === 0 || !userSettings) return [];
-
-    const dayStartHour = userSettings.dayStartHour;
-    let startTimestamp: number;
-    let endTimestamp: number;
-
-    switch (selectedPeriod) {
-      case "today":
-        startTimestamp = getTodayStart(dayStartHour);
-        endTimestamp = startTimestamp + 24 * 60 * 60 * 1000;
-        break;
-      case "yesterday":
-        startTimestamp = getYesterdayStart(dayStartHour);
-        endTimestamp = startTimestamp + 24 * 60 * 60 * 1000;
-        break;
-      case "week": {
-        // Find the start of the current week (Sunday)
-        const today = new Date(getTodayStart(dayStartHour));
-        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const sunday = new Date(today);
-        sunday.setDate(today.getDate() - dayOfWeek);
-        sunday.setHours(dayStartHour, 0, 0, 0);
-        startTimestamp = sunday.getTime();
-        endTimestamp = startTimestamp + 7 * 24 * 60 * 60 * 1000;
-        break;
-      }
-      case "month":
-        startTimestamp = getTodayStart(dayStartHour) - 30 * 24 * 60 * 60 * 1000;
-        endTimestamp = getTodayStart(dayStartHour) + 24 * 60 * 60 * 1000;
-        break;
-      default:
-        const today = new Date(getTodayStart(dayStartHour));
-        const dayOfWeek = today.getDay();
-        const sunday = new Date(today);
-        sunday.setDate(today.getDate() - dayOfWeek);
-        sunday.setHours(dayStartHour, 0, 0, 0);
-        startTimestamp = sunday.getTime();
-        endTimestamp = startTimestamp + 7 * 24 * 60 * 60 * 1000;
-    }
-
-    const filteredEntries = entries.filter(
-      (entry) => entry.startedAt >= startTimestamp && (selectedPeriod !== "week" || entry.startedAt < endTimestamp),
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
+        <Card>
+          <CardContent className="py-8">
+            <div className="text-muted-foreground text-center">
+              Loading analytics data...
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
-
-    // Group by day and topic
-    const dayMap = new Map<string, Map<string, number>>();
-
-    // For week view, ensure we have all 7 days even if no data
-    if (selectedPeriod === "week") {
-      for (let i = 0; i < 7; i++) {
-        const dayDate = new Date(startTimestamp + i * 24 * 60 * 60 * 1000);
-        const dateString = dayDate.toDateString();
-        dayMap.set(dateString, new Map());
-      }
-    }
-
-    filteredEntries.forEach((entry) => {
-      const date = getCustomDateString(entry.startedAt, dayStartHour);
-      const topic = entry.taskTopic || "Uncategorized";
-
-      if (!dayMap.has(date)) {
-        dayMap.set(date, new Map());
-      }
-
-      const topicMap = dayMap.get(date)!;
-      topicMap.set(topic, (topicMap.get(topic) || 0) + entry.duration);
-    });
-
-    // Convert to array format
-    const result: DayData[] = [];
-    const sortedDates = Array.from(dayMap.keys()).sort(
-      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
-    );
-
-    sortedDates.forEach((date) => {
-      const topicMap = dayMap.get(date)!;
-      const topics = Array.from(topicMap.entries()).map(([topic, time]) => ({
-        topic,
-        time,
-        color: getTopicColor(topic),
-      }));
-
-      const total = topics.reduce((sum, t) => sum + t.time, 0);
-
-      result.push({
-        date,
-        topics: topics.sort((a, b) => b.time - a.time),
-        total,
-      });
-    });
-
-    return result;
-  }, [timeEntries, selectedPeriod, userSettings]);
-
-  const formatTime = (minutes: number) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return h ? `${h}h ${m}m` : `${m}m`;
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!userSettings) return dateString;
-
-    const date = new Date(dateString);
-    const dayStartHour = userSettings.dayStartHour;
-    const todayStart = getTodayStart(dayStartHour);
-    const yesterdayStart = getYesterdayStart(dayStartHour);
-
-    const todayDateString = new Date(todayStart).toDateString();
-    const yesterdayDateString = new Date(yesterdayStart).toDateString();
-
-    if (dateString === todayDateString) return "Today";
-    if (dateString === yesterdayDateString) return "Yesterday";
-
-    // For week view, show day name prominently
-    if (selectedPeriod === "week") {
-      return date.toLocaleDateString("en-US", {
-        weekday: "long",
-      });
-    }
-
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const maxTime = Math.max(...filteredData.map((day) => day.total), 1);
-
-
-  const periodLabels = {
-    today: "Today",
-    yesterday: "Yesterday",
-    week: "This Week",
-    month: "This Month",
-  };
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
@@ -361,10 +209,10 @@ export default function AnalyzePage() {
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-light">
-              Time Spent by Topic - {periodLabels[selectedPeriod]}
+              Time Spent by Topic - {PERIOD_LABELS[selectedPeriod]}
             </h3>
             <div className="flex items-center gap-2">
-              {Object.entries(periodLabels).map(([period, label]) => (
+              {Object.entries(PERIOD_LABELS).map(([period, label]) => (
                 <Button
                   key={period}
                   variant={selectedPeriod === period ? "default" : "outline"}
@@ -385,18 +233,18 @@ export default function AnalyzePage() {
               see analytics here.
             </div>
           ) : selectedPeriod === "week" ? (
-            <WeekBarChart 
-              data={filteredData} 
-              formatTime={formatTime} 
-              formatDate={formatDate}
+            <WeekBarChart
+              data={filteredData}
+              formatTime={formatTime}
+              formatDate={formatDateWithSettings}
             />
           ) : (
             <div className="space-y-4">
               {filteredData.map((day) => (
                 <div key={day.date} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground font-medium">
-                      {formatDate(day.date)}
+                    <span className="text-muted-foreground text-sm font-medium">
+                      {formatDateWithSettings(day.date)}
                     </span>
                     <span className="text-sm font-semibold">
                       {formatTime(day.total)}
@@ -404,37 +252,39 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Topic Bar */}
-                  <div className="w-full overflow-hidden rounded-lg bg-muted h-12">
+                  <div className="bg-muted h-12 w-full overflow-hidden rounded-lg">
                     <div className="flex h-full">
                       {day.total > 0 ? (
-                        day.topics.length > 0 ? day.topics.map((topic, index) => (
-                          <div
-                            key={`${topic.topic}-${index}`}
-                            className={`group relative flex items-center justify-center ${topic.color}`}
-                            style={{
-                              width: `${(topic.time / maxTime) * 100}%`, 
-                              minWidth: topic.time > 0 ? "2px" : "0px"
-                            }}
-                            title={`${topic.topic}: ${formatTime(topic.time)}`}
-                          >
-                            {/* Tooltip */}
-                            <div className="absolute left-1/2 mb-2 hidden -translate-x-1/2 transform rounded bg-foreground px-2 py-1 text-xs text-background group-hover:block z-10 whitespace-nowrap">
-                              {topic.topic}: {formatTime(topic.time)}
+                        day.topics.length > 0 ? (
+                          day.topics.map((topic, index) => (
+                            <div
+                              key={`${topic.topic}-${index}`}
+                              className={`group relative flex items-center justify-center ${topic.color}`}
+                              style={{
+                                width: `${(topic.time / maxTime) * 100}%`,
+                                minWidth: topic.time > 0 ? "2px" : "0px",
+                              }}
+                              title={`${topic.topic}: ${formatTime(topic.time)}`}
+                            >
+                              {/* Tooltip */}
+                              <div className="bg-foreground text-background absolute left-1/2 z-10 mb-2 hidden -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap group-hover:block">
+                                {topic.topic}: {formatTime(topic.time)}
+                              </div>
                             </div>
-                          </div>
-                        )) : (
+                          ))
+                        ) : (
                           // Show a single bar for uncategorized time
                           <div
-                            className={`group relative flex items-center justify-center w-full h-full ${getTopicColor("Uncategorized")}`}
+                            className={`group relative flex h-full w-full items-center justify-center ${getTopicColor("Uncategorized")}`}
                             title={`Uncategorized: ${formatTime(day.total)}`}
                           >
-                            <div className="absolute left-1/2 mb-2 hidden -translate-x-1/2 transform rounded bg-foreground px-2 py-1 text-xs text-background group-hover:block z-10 whitespace-nowrap">
+                            <div className="bg-foreground text-background absolute left-1/2 z-10 mb-2 hidden -translate-x-1/2 transform rounded px-2 py-1 text-xs whitespace-nowrap group-hover:block">
                               Uncategorized: {formatTime(day.total)}
                             </div>
                           </div>
                         )
                       ) : (
-                        <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
+                        <div className="text-muted-foreground flex h-full items-center justify-center text-xs">
                           No activity
                         </div>
                       )}
@@ -444,20 +294,26 @@ export default function AnalyzePage() {
                   {/* Topic Legend */}
                   {day.total > 0 && (
                     <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {day.topics.length > 0 ? day.topics.map((topic, index) => (
-                        <div
-                          key={`legend-${topic.topic}-${index}`}
-                          className="flex items-center gap-1"
-                        >
-                          <div className={`h-3 w-3 rounded-full ${topic.color}`} />
-                          <span className="text-xs text-muted-foreground">
-                            {topic.topic} ({formatTime(topic.time)})
-                          </span>
-                        </div>
-                      )) : (
+                      {day.topics.length > 0 ? (
+                        day.topics.map((topic, index) => (
+                          <div
+                            key={`legend-${topic.topic}-${index}`}
+                            className="flex items-center gap-1"
+                          >
+                            <div
+                              className={`h-3 w-3 rounded-full ${topic.color}`}
+                            />
+                            <span className="text-muted-foreground text-xs">
+                              {topic.topic} ({formatTime(topic.time)})
+                            </span>
+                          </div>
+                        ))
+                      ) : (
                         <div className="flex items-center gap-1">
-                          <div className={`h-3 w-3 rounded-full ${getTopicColor("Uncategorized")}`} />
-                          <span className="text-xs text-muted-foreground">
+                          <div
+                            className={`h-3 w-3 rounded-full ${getTopicColor("Uncategorized")}`}
+                          />
+                          <span className="text-muted-foreground text-xs">
                             Uncategorized ({formatTime(day.total)})
                           </span>
                         </div>

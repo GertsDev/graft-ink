@@ -4,7 +4,7 @@ import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { geistSans, geistMono } from "./fonts";
 import { ThemeProvider } from "next-themes";
 import { ConvexClientProvider } from "./convex-client-provider";
-import NavBar from "../components/navbar/navbar";
+import NavBar from "../shared/components/navbar/navbar";
 
 export const metadata: Metadata = {
   title: "Graft ink.",

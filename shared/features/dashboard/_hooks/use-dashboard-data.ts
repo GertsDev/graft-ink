@@ -3,12 +3,12 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useMemo } from "react";
-import { getTodayStart } from "../utils/day-utils";
+import { getTodayStart } from "../_utils/day-utils";
 
 export function useDashboardData() {
   // Get user settings to determine when their day starts
   const userSettings = useQuery(api.users.getUserSettings);
-  
+
   // Calculate today start based on user's day start hour
   const todayStart = useMemo(() => {
     if (userSettings === undefined) return 0; // Loading state
@@ -17,8 +17,8 @@ export function useDashboardData() {
 
   // Single query for all dashboard data - refetches automatically when todayStart changes
   const data = useQuery(
-    api.dashboard.getDashboardData, 
-    userSettings !== undefined ? { todayStart } : "skip"
+    api.dashboard.getDashboardData,
+    userSettings !== undefined ? { todayStart } : "skip",
   );
 
   return {

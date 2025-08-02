@@ -3,21 +3,21 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -50,7 +50,7 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 animate-in fade-in-0 slide-in-from-top-4 duration-500">
+      <div className="animate-in fade-in-0 slide-in-from-top-4 mb-6 duration-500">
         <Link
           href="/dashboard/track"
           className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm transition-all duration-200 hover:gap-3"
@@ -64,7 +64,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Card className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-150">
+      <Card className="animate-in fade-in-0 slide-in-from-bottom-4 delay-150 duration-700">
         <CardHeader>
           <CardTitle>Day Start Time</CardTitle>
           <CardDescription>
@@ -79,7 +79,7 @@ export default function SettingsPage() {
               value={effectiveDayStartHour.toString()}
               onValueChange={(value) => setDayStartHour(parseInt(value))}
             >
-              <SelectTrigger className="w-full transition-all duration-200 hover:ring-2 hover:ring-ring/20">
+              <SelectTrigger className="hover:ring-ring/20 w-full transition-all duration-200 hover:ring-2">
                 <SelectValue placeholder="Select time">
                   {formatTime(effectiveDayStartHour)}
                 </SelectValue>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
             </Select>
           </div>
 
-          <div className="text-muted-foreground text-sm animate-in fade-in-0 duration-500 delay-300">
+          <div className="text-muted-foreground animate-in fade-in-0 text-sm delay-300 duration-500">
             <p className="transition-colors duration-200">
               <strong>Current setting:</strong> Your day starts at{" "}
               <span className="font-mono transition-all duration-300">
@@ -117,7 +117,7 @@ export default function SettingsPage() {
           <Button
             onClick={handleSave}
             disabled={effectiveDayStartHour === userSettings?.dayStartHour}
-            className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:opacity-50"
+            className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
           >
             Save Settings
           </Button>
