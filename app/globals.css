@@ -82,6 +82,16 @@
 
   --color-chart-1: var(--chart-1);
 
+  --color-analyze-5: var(--analyze-5);
+
+  --color-analyze-4: var(--analyze-4);
+
+  --color-analyze-3: var(--analyze-3);
+
+  --color-analyze-2: var(--analyze-2);
+
+  --color-analyze-1: var(--analyze-1);
+
   --color-ring: var(--ring);
 
   --color-input: var(--input);
@@ -177,6 +187,16 @@
   --chart-4: oklch(0.8369 0.1644 84.4286);
 
   --chart-5: oklch(0.879 0.1534 91.6054);
+
+  --analyze-1: oklch(0.7 0.15 25);
+
+  --analyze-2: oklch(0.75 0.15 60);
+
+  --analyze-3: oklch(0.65 0.15 120);
+
+  --analyze-4: oklch(0.7 0.12 200);
+
+  --analyze-5: oklch(0.72 0.14 280);
 
   --radius: 0.75rem;
 
@@ -290,6 +310,16 @@
   --chart-4: oklch(0.879 0.1534 91.6054);
 
   --chart-5: oklch(0.9619 0.058 95.6174);
+
+  --analyze-1: oklch(0.75 0.18 25);
+
+  --analyze-2: oklch(0.8 0.18 60);
+
+  --analyze-3: oklch(0.7 0.18 120);
+
+  --analyze-4: oklch(0.75 0.15 200);
+
+  --analyze-5: oklch(0.77 0.17 280);
 
   --radius: 0.75rem;
 
