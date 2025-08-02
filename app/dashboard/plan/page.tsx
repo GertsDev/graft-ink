@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { format, isToday, isYesterday, subDays, addDays } from "date-fns";
-import { Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useDebounce } from "../../../shared/features/dashboard/_hooks/use-debounce";
@@ -11,14 +10,8 @@ import {
   CardContent,
   CardHeader,
 } from "../../../shared/components/ui/card";
-import { Button } from "../../../shared/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../../shared/components/ui/popover";
-
-type DateOption = "today" | "yesterday" | "custom";
+import { DateSelector } from "../../../shared/features/dashboard/plan/date-selector";
+import { PlanEditor } from "../../../shared/features/dashboard/plan/plan-editor";
 
 export default function PlanPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -48,78 +41,6 @@ export default function PlanPage() {
     debouncedSave(newContent, dateString);
   };
 
-  // Handle date option changes
-  const handleDateOptionChange = (option: DateOption) => {
-    const today = new Date();
-
-    switch (option) {
-      case "today":
-        setSelectedDate(today);
-        break;
-      case "yesterday":
-        setSelectedDate(subDays(today, 1));
-        break;
-      case "custom":
-        // Keep current selected date
-        break;
-    }
-  };
-
-  const { todayString, yesterdayString, tomorrowString, selectedString } =
-    useMemo(() => {
-      const today = new Date();
-      return {
-        todayString: format(today, "yyyy-MM-dd"),
-        yesterdayString: format(subDays(today, 1), "yyyy-MM-dd"),
-        tomorrowString: format(addDays(today, 1), "yyyy-MM-dd"),
-        selectedString: format(selectedDate, "yyyy-MM-dd"),
-      };
-    }, [selectedDate]);
-
-  const isDateOptionActive = (option: DateOption) => {
-    switch (option) {
-      case "today":
-        return selectedString === todayString;
-      case "yesterday":
-        return selectedString === yesterdayString;
-      default:
-        return false;
-    }
-  };
-
-  const isTomorrowActive = () => selectedString === tomorrowString;
-
-  // Handle custom date selection
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    setIsCalendarOpen(false);
-  };
-
-  // Format date for display
-  const formatDisplayDate = (date: Date) => {
-    if (isToday(date)) return "Today";
-    if (isYesterday(date)) return "Yesterday";
-    return format(date, "MMM d, yyyy");
-  };
-
-  const { calendarDays, today } = useMemo(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    const days = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
-    }
-
-    return { calendarDays: days, today };
-  }, []);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col px-4">
@@ -130,88 +51,19 @@ export default function PlanPage() {
             <h3 className="text-lg font-light">
               {format(selectedDate, "EEEE, MMMM d, yyyy")}
             </h3>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={
-                  isDateOptionActive("yesterday") ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => handleDateOptionChange("yesterday")}
-                className="h-8 px-3 text-xs"
-              >
-                Yesterday
-              </Button>
-              <Button
-                variant={isDateOptionActive("today") ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleDateOptionChange("today")}
-                className="h-8 px-3 text-xs"
-              >
-                Today
-              </Button>
-              <Button
-                variant={isTomorrowActive() ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-                className="h-8 px-3 text-xs"
-              >
-                Tomorrow
-              </Button>
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                    <Calendar className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-3" align="end">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium">
-                        {format(today, "MMMM yyyy")}
-                      </h4>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1 text-center text-xs">
-                      {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-                        <div
-                          key={day}
-                          className="p-1 font-medium text-gray-500"
-                        >
-                          {day}
-                        </div>
-                      ))}
-                      {calendarDays.map((day, index) => (
-                        <button
-                          key={index}
-                          onClick={() => day && handleDateSelect(day)}
-                          disabled={!day}
-                          className={`hover:bg-primary/40 rounded p-1 text-xs ${
-                            day &&
-                            format(day, "yyyy-MM-dd") ===
-                              format(selectedDate, "yyyy-MM-dd")
-                              ? "bg-muted/60 text-white hover:bg-blue-600"
-                              : day && isToday(day)
-                                ? "bg-primary/60 text-primary-foreground hover:bg-blue-600"
-                                : ""
-                          }`}
-                        >
-                          {day ? day.getDate() : ""}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DateSelector
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              isCalendarOpen={isCalendarOpen}
+              onCalendarOpenChange={setIsCalendarOpen}
+            />
           </div>
         </CardHeader>
         <CardContent>
-          <textarea
-            className="focus:border-primary text-md sm:text-md min-h-[500px] w-full resize-none rounded-md border-2 border-gray-300 p-4 text-base leading-relaxed font-light focus:outline-none"
-            id="plan"
-            value={planContent}
+          <PlanEditor
+            planContent={planContent}
+            selectedDate={selectedDate}
             onChange={handleChange}
-            placeholder={`Write your plan for ${formatDisplayDate(selectedDate).toLowerCase()}...`}
-            autoFocus
           />
         </CardContent>
       </Card>
