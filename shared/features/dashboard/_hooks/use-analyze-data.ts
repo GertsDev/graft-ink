@@ -32,6 +32,7 @@ export interface UseAnalyzeDataReturn {
   filteredData: DayData[];
   maxTime: number;
   isLoading: boolean;
+  dayStartHour: number;
 }
 
 // Generate consistent colors for topics using custom analyze colors
@@ -171,6 +172,7 @@ export function useAnalyzeData(
     filteredData,
     maxTime,
     isLoading,
+    dayStartHour: userSettings?.dayStartHour ?? 0,
   };
 }
 

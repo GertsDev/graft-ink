@@ -179,13 +179,11 @@ function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
 
 export default function AnalyzePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
-  const { filteredData, maxTime, isLoading } = useAnalyzeData(selectedPeriod);
+  const { filteredData, maxTime, isLoading, dayStartHour } = useAnalyzeData(selectedPeriod);
 
   // Helper function for date formatting with user settings
   const formatDateWithSettings = (dateString: string) => {
-    // This will be implemented when userSettings is available
-    // For now, use a default dayStartHour of 0
-    return formatDate(dateString, selectedPeriod, 0);
+    return formatDate(dateString, selectedPeriod, dayStartHour);
   };
 
   if (isLoading) {
