@@ -11,6 +11,12 @@ import {
   getYesterdayStart,
   getCustomDateString,
 } from "../shared/utils/day-utils";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+} from "../../../components/ui/chart";
 
 interface TimeEntry {
   taskTitle: string;
@@ -30,6 +36,154 @@ interface DayData {
   date: string;
   topics: { topic: string; time: number; color: string }[];
   total: number;
+}
+
+interface WeekBarChartProps {
+  data: DayData[];
+  formatTime: (minutes: number) => string;
+  formatDate: (dateString: string) => string;
+}
+
+function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps) {
+  // Get all unique topics for stacking
+  const allTopics = Array.from(
+    new Set(data.flatMap(day => day.topics.map(topic => topic.topic)))
+  );
+
+  // If no topics, show total bars with single color
+  const hasTopics = allTopics.length > 0;
+
+  // Transform data for recharts
+  const chartData = data.map(day => {
+    const chartEntry: Record<string, string | number> = {
+      day: formatDate(day.date),
+      dayFull: day.date,
+      total: day.total
+    };
+    
+    if (hasTopics) {
+      // Add each topic as a separate data key
+      day.topics.forEach(topic => {
+        chartEntry[topic.topic] = topic.time;
+      });
+    }
+    
+    return chartEntry;
+  });
+
+  // Create chart config with analyze theme colors
+  const chartConfig: ChartConfig = {};
+  
+  if (hasTopics) {
+    allTopics.forEach((topic, index) => {
+      const analyzeColorIndex = (index % 5) + 1;
+      chartConfig[topic] = {
+        label: topic,
+        color: `var(--analyze-${analyzeColorIndex})`
+      };
+    });
+  } else {
+    chartConfig['total'] = {
+      label: 'Total Time',
+      color: 'var(--analyze-1)'
+    };
+  }
+
+
+  return (
+    <div className="h-80 w-full">
+      <ChartContainer config={chartConfig} className="h-full w-full">
+        <BarChart
+          accessibilityLayer
+          data={chartData}
+          margin={{
+            top: 10,
+            right: 10,
+            left: 50,
+            bottom: 30,
+          }}
+        >
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="day"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            fontSize={12}
+            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+          />
+          <YAxis
+            tickFormatter={(value) => {
+              if (value === 0) return '';
+              const h = Math.floor(value / 60);
+              const m = value % 60;
+              if (h && m) return `${h}h ${m}m`;
+              if (h) return `${h}h`;
+              if (m) return `${m}m`;
+              return '';
+            }}
+            tickLine={false}
+            axisLine={false}
+            fontSize={12}
+            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+            width={50}
+          />
+          <ChartTooltip
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null;
+              
+              const data = payload[0]?.payload;
+              if (!data) return null;
+              
+              return (
+                <div className="rounded-lg border bg-background p-3 shadow-md">
+                  <p className="font-medium mb-2">{label}</p>
+                  <div className="space-y-1">
+                    {allTopics.map((topic) => {
+                      const value = data[topic];
+                      if (!value) return null;
+                      return (
+                        <div key={topic} className="flex items-center gap-2 text-sm">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: chartConfig[topic]?.color }}
+                          />
+                          <span>{topic}: {formatTime(value)}</span>
+                        </div>
+                      );
+                    })}
+                    <div className="border-t pt-1 mt-2">
+                      <span className="font-medium text-sm">Total: {formatTime(data.total)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+          />
+          {hasTopics ? (
+            allTopics.map((topic, index) => {
+              const analyzeColorIndex = (index % 5) + 1;
+              return (
+                <Bar
+                  key={topic}
+                  dataKey={topic}
+                  stackId="topics"
+                  fill={`var(--analyze-${analyzeColorIndex})`}
+                  radius={0}
+                />
+              );
+            })
+          ) : (
+            <Bar
+              dataKey="total"
+              fill="var(--analyze-1)"
+              radius={0}
+            />
+          )}
+        </BarChart>
+      </ChartContainer>
+    </div>
+  );
 }
 
 export default function AnalyzePage() {
@@ -192,6 +346,7 @@ export default function AnalyzePage() {
 
   const maxTime = Math.max(...filteredData.map((day) => day.total), 1);
 
+
   const periodLabels = {
     today: "Today",
     yesterday: "Yesterday",
@@ -229,32 +384,36 @@ export default function AnalyzePage() {
               No time entries found for this period. Start tracking your time to
               see analytics here.
             </div>
+          ) : selectedPeriod === "week" ? (
+            <WeekBarChart 
+              data={filteredData} 
+              formatTime={formatTime} 
+              formatDate={formatDate}
+            />
           ) : (
-            <div className={selectedPeriod === "week" ? "grid grid-cols-1 gap-6 md:grid-cols-7 md:gap-4" : "space-y-4"}>
+            <div className="space-y-4">
               {filteredData.map((day) => (
-                <div key={day.date} className={selectedPeriod === "week" ? "space-y-3" : "space-y-2"}>
-                  <div className={selectedPeriod === "week" ? "text-center" : "flex items-center justify-between"}>
-                    <span className={`font-medium ${selectedPeriod === "week" ? "text-base text-foreground mb-1 block" : "text-sm text-muted-foreground"}`}>
+                <div key={day.date} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground font-medium">
                       {formatDate(day.date)}
                     </span>
-                    <span className={`font-semibold ${selectedPeriod === "week" ? "text-lg text-primary block" : "text-sm"}`}>
+                    <span className="text-sm font-semibold">
                       {formatTime(day.total)}
                     </span>
                   </div>
 
                   {/* Topic Bar */}
-                  <div className={`w-full overflow-hidden rounded-lg bg-muted ${selectedPeriod === "week" ? "h-48" : "h-12"}`}>
-                    <div className={`${selectedPeriod === "week" ? "flex flex-col h-full" : "flex h-full"}`}>
+                  <div className="w-full overflow-hidden rounded-lg bg-muted h-12">
+                    <div className="flex h-full">
                       {day.total > 0 ? (
                         day.topics.length > 0 ? day.topics.map((topic, index) => (
                           <div
                             key={`${topic.topic}-${index}`}
                             className={`group relative flex items-center justify-center ${topic.color}`}
                             style={{
-                              ...(selectedPeriod === "week" 
-                                ? { height: `${(topic.time / Math.max(day.total, 1)) * 100}%`, minHeight: topic.time > 0 ? "2px" : "0px" }
-                                : { width: `${(topic.time / maxTime) * 100}%`, minWidth: topic.time > 0 ? "2px" : "0px" }
-                              ),
+                              width: `${(topic.time / maxTime) * 100}%`, 
+                              minWidth: topic.time > 0 ? "2px" : "0px"
                             }}
                             title={`${topic.topic}: ${formatTime(topic.time)}`}
                           >
@@ -282,8 +441,8 @@ export default function AnalyzePage() {
                     </div>
                   </div>
 
-                  {/* Topic Legend - only show for non-week views or when there are topics */}
-                  {(selectedPeriod !== "week" && day.total > 0) && (
+                  {/* Topic Legend */}
+                  {day.total > 0 && (
                     <div className="flex flex-wrap gap-x-4 gap-y-1">
                       {day.topics.length > 0 ? day.topics.map((topic, index) => (
                         <div
