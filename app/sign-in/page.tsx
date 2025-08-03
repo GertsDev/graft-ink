@@ -8,7 +8,7 @@ import { SignInWithGoogle } from "../../shared/components/auth/oauth/sign-in-wit
 
 export default function SignInPage() {
   return (
-    <div className="from-background via-background to-muted/20 flex items-center justify-center bg-gradient-to-br p-4 flex-1">
+    <div className="flex items-center justify-center p-4 flex-1">
       <div className=" w-full max-w-md">
         {/* Back button */}
         <motion.div

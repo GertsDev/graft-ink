@@ -11,18 +11,18 @@ export default function MarketingPage() {
   const pillars = [
     {
       icon: NotebookPen,
-      title: "Plan",
-      desc: "Turn priorities into a simple daily plan. Define the few outcomes that matter and the next concrete actions.",
+      title: "PLAN",
+      desc: "Jot your main goal for today. Optionally sketch a simple schedule.",
     },
     {
       icon: Timer,
-      title: "Track",
-      desc: "Log focused work blocks as you go. Create a truthful record that respects your attention budget.",
+      title: "TRACK",
+      desc: "From your plan, add 1–5 tasks you'll work on. Every 30–45 minutes click Add to log progress toward a task.",
     },
     {
       icon: BarChart3,
-      title: "Analyze",
-      desc: "Review patterns, spot bottlenecks, and recalibrate your system weekly with clear, visual insights.",
+      title: "ANALYZE",
+      desc: "Use the Analyze page to review yesterday or last week. Did you follow the plan? What can improve?",
     },
   ];
 
@@ -34,7 +34,7 @@ export default function MarketingPage() {
   ];
 
   return (
-    <main className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+    <main className="min-h-screen">
       <section className="relative mx-auto max-w-6xl px-6 py-24 lg:px-8">
         <div
           aria-hidden
@@ -78,10 +78,10 @@ export default function MarketingPage() {
             <div className="text-muted-foreground mt-6 flex items-center gap-3 text-sm">
               <span>Try it in minutes</span>
               <span>•</span>
-              <span>No trackers, your data stays yours</span>
+              <span>Free and open source</span>
             </div>
           </div>
-          <div className="relative">
+          <div className="relative" aria-hidden>
             <div className="from-primary/10 to-pink-500/10 absolute -inset-6 -z-10 rounded-2xl bg-gradient-to-br blur-xl" />
             <Card className="border-muted/50 bg-background/60 backdrop-blur">
               <CardHeader>
@@ -100,7 +100,7 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      <section id="use-cases" className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
+      <section className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -108,75 +108,37 @@ export default function MarketingPage() {
           transition={{ duration: 0.6 }}
           className="mb-10 text-center"
         >
-          <h2 className="text-foreground text-3xl font-bold sm:text-4xl">Best use cases</h2>
+          <h2 className="text-foreground text-3xl font-bold sm:text-4xl">Your day in three steps</h2>
           <p className="text-muted-foreground mx-auto mt-3 max-w-2xl text-lg">
-            Proven techniques that pair well with Graft to keep you focused and energized.
+            A simple loop you can actually follow—plan, focus, review.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <Card className="h-full">
-              <CardHeader>
-                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Timer className="h-6 w-6" />
-                </div>
-                <CardTitle className="text-xl">Pomodoro (25/5)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base leading-relaxed">
-                  Focus 25 minutes, then 5-minute break. Log what you did each cycle to reinforce intent and track momentum.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <Card className="h-full">
-              <CardHeader>
-                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <NotebookPen className="h-6 w-6" />
-                </div>
-                <CardTitle className="text-xl">60/45/30 Rhythm</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base leading-relaxed">
-                  Long-to-short focus blocks. After each, jot what you worked on for the last 30 minutes, stand up and walk for 1 minute, resume.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <Card className="h-full">
-              <CardHeader>
-                <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <BarChart3 className="h-6 w-6" />
-                </div>
-                <CardTitle className="text-xl">Weekly Review</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base leading-relaxed">
-                  Use your tracked blocks to spot patterns, rebalance time, and set 3–5 outcomes for next week.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {pillars.map((p, idx) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.05, duration: 0.5 }}
+            >
+              <Card className="h-full">
+                <CardHeader>
+                  <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <p.icon className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-xl">{p.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base leading-relaxed">{p.desc}</CardDescription>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </section>
+
 
       <section className="bg-muted/30 px-6 py-16 lg:px-8">
         <div className="mx-auto max-w-5xl">
@@ -251,12 +213,12 @@ export default function MarketingPage() {
             transition={{ duration: 0.6 }}
             className="from-primary/10 rounded-3xl border bg-gradient-to-r via-purple-500/10 to-pink-500/10 p-12"
           >
-            <h3 className="text-foreground mb-3 text-3xl font-bold">Start planning with intent</h3>
+            <h3 className="text-foreground mb-3 text-3xl font-bold">Ready to really get your life in your hands?</h3>
             <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-lg">
               Build a system that compounds. One deliberate day at a time.
             </p>
             <Button size="lg" className="px-8 py-3 text-lg" asChild>
-              <a href="/sign-in">Create your plan</a>
+              <a href="/sign-in">Let&apos;s go!</a>
             </Button>
           </motion.div>
         </div>
