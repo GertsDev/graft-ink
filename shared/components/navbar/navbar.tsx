@@ -159,6 +159,7 @@ const NavBar = () => {
             </Link>
           )}
         </Authenticated>
+        {/* marketing link removed as home is marketing */}
         <ThemeToggle />
 
         <AuthDropdown />

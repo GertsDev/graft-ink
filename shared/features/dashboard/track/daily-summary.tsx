@@ -11,7 +11,7 @@ import { type Doc } from "../../../../convex/_generated/dataModel";
 
 interface DailySummaryProps {
   totalToday: number;
-  tasks: Doc<"tasks">[];
+  tasks: (Doc<"tasks"> & { todayTime?: number })[];
 }
 
 export function DailySummary({ totalToday, tasks }: DailySummaryProps) {
