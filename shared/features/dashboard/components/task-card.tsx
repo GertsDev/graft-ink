@@ -136,6 +136,7 @@ export default function TaskCard({ task }: Props) {
       exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
       whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
       className="relative"
+      style={{ pointerEvents: 'auto' }}
     >
       <Card className="relative overflow-hidden transition-all duration-200 hover:shadow-lg">
         {/* Celebration overlay */}
@@ -145,7 +146,7 @@ export default function TaskCard({ task }: Props) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-r from-analyze-1/20 to-analyze-2/20 backdrop-blur-sm"
+              className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-r from-analyze-1/20 to-analyze-2/20 backdrop-blur-sm pointer-events-none"
             >
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
@@ -164,7 +165,7 @@ export default function TaskCard({ task }: Props) {
         {(task.todayTime ?? 0) > 0 && (
           <div className="absolute inset-0 bg-gradient-to-br from-analyze-1/5 to-analyze-2/5" />
         )}
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 relative z-20">
         <div className="flex items-start justify-between">
           <div className="w-full">
             {isEditing ? (
@@ -189,15 +190,13 @@ export default function TaskCard({ task }: Props) {
                 <h3 className="font-semibold transition-colors duration-200">
                   {task.title}
                 </h3>
-                {task.topic && (
-                  <p className="text-sm text-gray-500 transition-colors duration-200">
-                    {task.topic}
-                  </p>
-                )}
+                <p className="text-sm text-gray-500 transition-colors duration-200 min-h-[1.25rem]">
+                  {task.topic || ""}
+                </p>
               </>
             )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 relative z-30">
             {isEditing ? (
               <>
                 <Button
@@ -235,9 +234,12 @@ export default function TaskCard({ task }: Props) {
                 variant="ghost"
                 size="icon"
                 aria-label="Edit task"
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  console.log('Edit button clicked for task:', task.title);
+                  setIsEditing(true);
+                }}
                 disabled={isLoading}
-                className="transition-all duration-200 hover:scale-110"
+                className="transition-all duration-200 hover:scale-110 relative z-40"
               >
                 <PenLine className="h-4 w-4 transition-colors duration-200" />
               </Button>
