@@ -116,22 +116,23 @@ export function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps
   
   return (
     <motion.div 
-      className="h-80 w-full relative"
+      className="w-full relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       onHoverStart={() => setShowInsights(true)}
       onHoverEnd={() => setShowInsights(false)}
     >
-      {/* Week insights overlay */}
-      <AnimatePresence>
-        {showInsights && totalWeekTime > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-r from-white/95 to-gray-50/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg"
-          >
+      {/* Week insights overlay - reserved space */}
+      <div className="h-16 mb-2 relative">
+        <AnimatePresence>
+          {showInsights && totalWeekTime > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute inset-0 z-20 bg-gradient-to-r from-white/95 to-gray-50/95 backdrop-blur-sm border rounded-lg p-3 shadow-lg"
+            >
             <div className="flex items-center justify-between text-sm">
               <div className={`flex items-center gap-2 ${weekInsight.color} font-medium`}>
                 <InsightIcon className="h-4 w-4" />
@@ -143,24 +144,28 @@ export function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps
                 {bestDay && <div>Best day: <span className="font-medium">{formatDate(bestDay.date)}</span></div>}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <motion.div
-        initial={{ scale: 0.95 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        <ChartContainer config={chartConfig} className="h-full w-full">
-        <BarChart
-          accessibilityLayer
-          data={chartData}
-          margin={{
-            top: showInsights ? 60 : 10,
-            right: 10,
-            left: 50,
-            bottom: 30,
-          }}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      {/* Chart container with responsive height */}
+      <div className="h-64 sm:h-72 w-full mb-4 overflow-hidden">
+        <motion.div
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="h-full w-full"
+        >
+          <ChartContainer config={chartConfig} className="h-full w-full">
+          <BarChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              top: 10,
+              right: 12,
+              left: 45,
+              bottom: 25,
+            }}
           onMouseEnter={(data) => {
             if (data && data.activeLabel) {
               setHoveredDay(data.activeLabel);
@@ -182,16 +187,17 @@ export function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps
               if (value === 0) return "";
               const h = Math.floor(value / 60);
               const m = value % 60;
-              if (h && m) return `${h}h ${m}m`;
+              // Shorter format for mobile
+              if (h && m) return `${h}h${m}m`;
               if (h) return `${h}h`;
               if (m) return `${m}m`;
               return "";
             }}
             tickLine={false}
             axisLine={false}
-            fontSize={12}
+            fontSize={11}
             tick={{ fill: "hsl(var(--muted-foreground))" }}
-            width={50}
+            width={45}
           />
           <ChartTooltip
             content={({ active, payload, label }) => {
@@ -205,7 +211,8 @@ export function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps
                   initial={{ opacity: 0, scale: 0.9, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-background rounded-lg border p-4 shadow-lg backdrop-blur-sm"
+                  className="bg-background rounded-lg border p-3 shadow-lg backdrop-blur-sm max-w-xs"
+                  style={{ zIndex: 50 }}
                 >
                   <motion.p 
                     className="mb-3 font-bold text-base bg-gradient-to-r from-analyze-1 to-analyze-2 bg-clip-text text-transparent"
@@ -283,14 +290,15 @@ export function WeekBarChart({ data, formatTime, formatDate }: WeekBarChartProps
               }}
             />
           )}
-        </BarChart>
-      </ChartContainer>
-      </motion.div>
+          </BarChart>
+        </ChartContainer>
+        </motion.div>
+      </div>
       
-      {/* Fun data insights */}
+      {/* Fun data insights - contained within layout */}
       {totalWeekTime > 0 && (
         <motion.div 
-          className="mt-4 flex items-center justify-center gap-6 text-xs text-muted-foreground"
+          className="flex items-center justify-center gap-4 md:gap-6 text-xs text-muted-foreground flex-wrap"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}

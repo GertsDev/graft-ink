@@ -61,7 +61,7 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-8"
     >
       {/* Week Navigation Header */}
       <Card>
@@ -158,7 +158,9 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="overflow-hidden"
           >
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Daily Activity</h4>
             <WeekBarChart
               data={dailyData.map((day: any) => ({
                 date: day.date,
@@ -192,9 +194,26 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {Object.entries(topicBreakdown)
-                  .sort(([, a], [, b]) => (b as any).totalMinutes - (a as any).totalMinutes)
-                  .map(([topic, data], index) => (
+                {(() => {
+                  const sortedTopics = Object.entries(topicBreakdown)
+                    .sort(([, a], [, b]) => (b as any).totalMinutes - (a as any).totalMinutes);
+                  
+                  // Filter topics with at least 5% or show top 5, whichever gives more meaningful data
+                  const significantTopics = sortedTopics.filter(([, data]) => (data as any).percentage >= 5);
+                  const topicsToShow = significantTopics.length >= 3 ? significantTopics.slice(0, 6) : sortedTopics.slice(0, 5);
+                  
+                  // Calculate "Other" category if we have filtered out topics
+                  const shownTopics = new Set(topicsToShow.map(([topic]) => topic));
+                  const otherTopics = sortedTopics.filter(([topic]) => !shownTopics.has(topic));
+                  const otherTotal = otherTopics.reduce((sum, [, data]) => sum + (data as any).totalMinutes, 0);
+                  const otherPercentage = otherTopics.reduce((sum, [, data]) => sum + (data as any).percentage, 0);
+                  
+                  const finalTopics = [...topicsToShow];
+                  if (otherTopics.length > 0 && otherPercentage >= 2) {
+                    finalTopics.push(['Other', { totalMinutes: otherTotal, percentage: otherPercentage }]);
+                  }
+                  
+                  return finalTopics.map(([topic, data], index) => (
                     <motion.div
                       key={topic}
                       initial={{ opacity: 0, x: -20 }}
@@ -204,9 +223,11 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
                     >
                       <div className="flex items-center gap-3">
                         <div 
-                          className={`w-4 h-4 rounded ${getTopicColor(topic)}`}
+                          className={`w-4 h-4 rounded ${topic === 'Other' ? 'bg-gray-400' : getTopicColor(topic)}`}
                         />
-                        <span className="font-medium">{topic}</span>
+                        <span className={`font-medium ${topic === 'Other' ? 'text-gray-500 text-sm' : ''}`}>
+                          {topic === 'Other' ? `Other (${(data as any).taskCount || 'multiple'} topics)` : topic}
+                        </span>
                       </div>
                       <div className="text-right">
                         <span className="font-semibold">
@@ -217,7 +238,8 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
                         </span>
                       </div>
                     </motion.div>
-                  ))}
+                  ));
+                })()}
               </div>
             </CardContent>
           </Card>

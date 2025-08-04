@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { 
   Calendar, 
   TrendingUp, 
@@ -24,8 +24,7 @@ import { useMonthAnalytics } from "../_hooks/use-month-analytics";
 import { 
   formatTime, 
   formatMonthYear, 
-  formatPercentage,
-  formatGrowth
+  formatPercentage
 } from "../_utils/format-utils";
 import { CalendarHeatmap } from "./calendar-heatmap";
 import { MonthlyMilestones } from "./monthly-milestones";
@@ -261,10 +260,26 @@ export function MonthAnalytics({ dayStartHour }: MonthAnalyticsProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {Object.entries(topicSummary)
-                .sort(([, a], [, b]) => (b as any).totalMinutes - (a as any).totalMinutes)
-                .slice(0, 5)
-                .map(([topic, data], index) => {
+              {(() => {
+                const sortedTopics = Object.entries(topicSummary)
+                  .sort(([, a], [, b]) => (b as any).totalMinutes - (a as any).totalMinutes);
+                
+                // Filter topics with at least 5% or show top 5, whichever gives more meaningful data
+                const significantTopics = sortedTopics.filter(([, data]) => (data as any).percentage >= 5);
+                const topicsToShow = significantTopics.length >= 3 ? significantTopics.slice(0, 6) : sortedTopics.slice(0, 5);
+                
+                // Calculate "Other" category if we have filtered out topics
+                const shownTopics = new Set(topicsToShow.map(([topic]) => topic));
+                const otherTopics = sortedTopics.filter(([topic]) => !shownTopics.has(topic));
+                const otherTotal = otherTopics.reduce((sum, [, data]) => sum + (data as any).totalMinutes, 0);
+                const otherPercentage = otherTopics.reduce((sum, [, data]) => sum + (data as any).percentage, 0);
+                
+                const finalTopics = [...topicsToShow];
+                if (otherTopics.length > 0 && otherPercentage >= 2) {
+                  finalTopics.push(['Other', { totalMinutes: otherTotal, percentage: otherPercentage, taskCount: otherTopics.length }]);
+                }
+                
+                return finalTopics.map(([topic, data], index) => {
                   const topicData = data as any;
                   return (
                   <motion.div
@@ -275,7 +290,9 @@ export function MonthAnalytics({ dayStartHour }: MonthAnalyticsProps) {
                     className="space-y-2"
                   >
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{topic}</span>
+                      <span className={`font-medium ${topic === 'Other' ? 'text-gray-500 text-sm' : ''}`}>
+                        {topic === 'Other' ? `Other (${topicData.taskCount} topics)` : topic}
+                      </span>
                       <div className="text-right">
                         <span className="text-gray-900">{formatTime(topicData.totalMinutes)}</span>
                         <span className="text-gray-500 ml-2">
@@ -289,7 +306,8 @@ export function MonthAnalytics({ dayStartHour }: MonthAnalyticsProps) {
                     />
                   </motion.div>
                   );
-                })}
+                });
+              })()}
             </CardContent>
           </Card>
         </motion.div>
