@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { getUserOrThrow } from "./utils";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const add = mutation({
   args: {
@@ -16,7 +17,17 @@ export const add = mutation({
     const task = await ctx.db.get(args.taskId);
     if (!task || task.userId !== userId) throw new Error("Invalid task");
 
-    return await ctx.db.insert("timeEntries", {
+    // Calculate previous total time for milestone checking
+    const existingEntries = await ctx.db
+      .query("timeEntries")
+      .withIndex("by_task", (q) => q.eq("taskId", args.taskId))
+      .collect();
+    
+    const previousTotalMinutes = existingEntries.reduce((sum, e) => sum + e.duration, 0);
+    const newTotalMinutes = previousTotalMinutes + args.duration;
+
+    // Insert the time entry
+    const entryId = await ctx.db.insert("timeEntries", {
       taskId: args.taskId,
       taskTitle: task.title, // Denormalize
       taskTopic: task.topic, // Denormalize
@@ -26,6 +37,57 @@ export const add = mutation({
       note: args.note,
       userId,
     });
+
+    // Check for time milestones asynchronously
+    await ctx.scheduler.runAfter(0, internal.milestones.checkTimeMilestones, {
+      userId,
+      newTotalMinutes,
+      previousTotalMinutes,
+      taskId: args.taskId,
+      taskTitle: task.title,
+    });
+
+    // Trigger time-added celebration
+    await ctx.db.insert("celebrations", {
+      userId,
+      type: "time_added",
+      triggeredAt: Date.now(),
+      shown: false,
+      value: args.duration,
+    });
+
+    // Update daily stats asynchronously
+    const today = new Date().toISOString().split('T')[0];
+    const userSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    
+    const dayStartHour = userSettings?.dayStartHour ?? 6;
+    
+    // Get today's total minutes and tasks count
+    const todayEntries = await ctx.db
+      .query("timeEntries")
+      .withIndex("by_user_date", (q) => q.eq("userId", userId))
+      .filter((q) => {
+        const dayStart = new Date();
+        dayStart.setHours(dayStartHour, 0, 0, 0);
+        return q.gte(q.field("startedAt"), dayStart.getTime());
+      })
+      .collect();
+    
+    const dailyMinutes = todayEntries.reduce((sum, e) => sum + e.duration, 0);
+    const uniqueTasks = new Set(todayEntries.map(e => e.taskId)).size;
+    
+    await ctx.scheduler.runAfter(0, internal.milestones.updateDailyStats, {
+      userId,
+      date: today,
+      dailyMinutes,
+      tasksWorkedOn: uniqueTasks,
+      dayStartHour,
+    });
+
+    return entryId;
   },
 });
 

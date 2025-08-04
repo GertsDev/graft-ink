@@ -13,14 +13,17 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as http from "../http.js";
+import type * as milestones from "../milestones.js";
 import type * as plans from "../plans.js";
 import type * as tasks from "../tasks.js";
 import type * as timeEntries from "../timeEntries.js";
 import type * as users from "../users.js";
+import type * as utils_celebrations from "../utils/celebrations.js";
 import type * as utils from "../utils.js";
 
 /**
@@ -32,14 +35,17 @@ import type * as utils from "../utils.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  analytics: typeof analytics;
   auth: typeof auth;
   crons: typeof crons;
   dashboard: typeof dashboard;
   http: typeof http;
+  milestones: typeof milestones;
   plans: typeof plans;
   tasks: typeof tasks;
   timeEntries: typeof timeEntries;
   users: typeof users;
+  "utils/celebrations": typeof utils_celebrations;
   utils: typeof utils;
 }>;
 export declare const api: FilterApi<
