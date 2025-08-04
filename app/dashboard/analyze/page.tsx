@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import {
   Card,
   CardContent,
@@ -15,13 +17,15 @@ import {
   formatDate,
   PERIOD_LABELS,
 } from "../../../shared/features/dashboard/_utils/format-utils";
-import { WeekBarChart } from "../../../shared/features/dashboard/analyze/week-bar-chart";
 import { DayBarChart } from "../../../shared/features/dashboard/analyze/day-bar-chart";
 import { AnalyzeControls } from "../../../shared/features/dashboard/analyze/analyze-controls";
 import { LoadingState } from "../../../shared/features/dashboard/analyze/loading-state";
+import { MonthAnalytics } from "../../../shared/features/dashboard/analyze/month-analytics";
+import { WeekNavigation } from "../../../shared/features/dashboard/analyze/week-navigation";
 
 export default function AnalyzePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
+  const userSettings = useQuery(api.users.getUserSettings);
   const { filteredData, maxTime, isLoading, dayStartHour } =
     useAnalyzeData(selectedPeriod);
 
@@ -30,10 +34,43 @@ export default function AnalyzePage() {
     return formatDate(dateString, selectedPeriod, dayStartHour);
   };
 
-  if (isLoading) {
+  if (isLoading || !userSettings) {
     return <LoadingState />;
   }
 
+  // Render month analytics separately
+  if (selectedPeriod === "month") {
+    return (
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-light">Analytics</h1>
+          <AnalyzeControls
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={setSelectedPeriod}
+          />
+        </div>
+        <MonthAnalytics dayStartHour={userSettings.dayStartHour} />
+      </div>
+    );
+  }
+
+  // Enhanced week view with navigation
+  if (selectedPeriod === "week") {
+    return (
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-light">Analytics</h1>
+          <AnalyzeControls
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={setSelectedPeriod}
+          />
+        </div>
+        <WeekNavigation dayStartHour={userSettings.dayStartHour} />
+      </div>
+    );
+  }
+
+  // Original day/today/yesterday view
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
       {/* Time Visualization */}
@@ -55,12 +92,6 @@ export default function AnalyzePage() {
               No time entries found for this period. Start tracking your time to
               see analytics here.
             </div>
-          ) : selectedPeriod === "week" ? (
-            <WeekBarChart
-              data={filteredData}
-              formatTime={formatTime}
-              formatDate={formatDateWithSettings}
-            />
           ) : (
             <DayBarChart
               data={filteredData}
