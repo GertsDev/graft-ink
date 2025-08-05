@@ -9,7 +9,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "../../../components/ui/chart";
-import { type DayData } from "../_hooks/use-analyze-data";
+import { type DayData } from "./_types/analytics-types";
 
 interface WeekBarChartProps {
   data: DayData[];

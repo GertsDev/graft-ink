@@ -4,13 +4,10 @@ import React from "react";
 import { motion } from "motion/react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { formatTime, formatGrowth } from "../_utils/format-utils";
+import { type WeeklyComparisonItem } from "./_types/analytics-types";
 
 interface WeeklyProgressProps {
-  weeklyData: Array<{
-    weekStart: string;
-    totalMinutes: number;
-    growth: number;
-  }>;
+  weeklyData: WeeklyComparisonItem[];
 }
 
 export function WeeklyProgress({ weeklyData }: WeeklyProgressProps) {
@@ -19,7 +16,6 @@ export function WeeklyProgress({ weeklyData }: WeeklyProgressProps) {
   return (
     <div className="space-y-4">
       {weeklyData.map((week, index) => {
-        const weekDate = new Date(week.weekStart);
         const weekLabel = `Week ${index + 1}`;
         const heightPercentage = (week.totalMinutes / maxMinutes) * 100;
         

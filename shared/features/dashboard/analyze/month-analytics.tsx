@@ -21,6 +21,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { Progress } from "../../../components/ui/progress";
 import { useMonthAnalytics } from "../_hooks/use-month-analytics";
+import { type TopicSummaryItem } from "./_types/analytics-types";
 import { 
   formatTime, 
   formatMonthYear, 
@@ -262,25 +263,24 @@ export function MonthAnalytics({ dayStartHour }: MonthAnalyticsProps) {
             <CardContent className="space-y-4">
               {(() => {
                 const sortedTopics = Object.entries(topicSummary)
-                  .sort(([, a], [, b]) => (b as any).totalMinutes - (a as any).totalMinutes);
+                  .sort(([, a], [, b]) => b.totalMinutes - a.totalMinutes);
                 
                 // Filter topics with at least 5% or show top 5, whichever gives more meaningful data
-                const significantTopics = sortedTopics.filter(([, data]) => (data as any).percentage >= 5);
+                const significantTopics = sortedTopics.filter(([, data]) => data.percentage >= 5);
                 const topicsToShow = significantTopics.length >= 3 ? significantTopics.slice(0, 6) : sortedTopics.slice(0, 5);
                 
                 // Calculate "Other" category if we have filtered out topics
                 const shownTopics = new Set(topicsToShow.map(([topic]) => topic));
                 const otherTopics = sortedTopics.filter(([topic]) => !shownTopics.has(topic));
-                const otherTotal = otherTopics.reduce((sum, [, data]) => sum + (data as any).totalMinutes, 0);
-                const otherPercentage = otherTopics.reduce((sum, [, data]) => sum + (data as any).percentage, 0);
+                const otherTotal = otherTopics.reduce((sum, [, data]) => sum + data.totalMinutes, 0);
+                const otherPercentage = otherTopics.reduce((sum, [, data]) => sum + data.percentage, 0);
                 
-                const finalTopics = [...topicsToShow];
+                const finalTopics: Array<[string, TopicSummaryItem]> = [...topicsToShow];
                 if (otherTopics.length > 0 && otherPercentage >= 2) {
                   finalTopics.push(['Other', { totalMinutes: otherTotal, percentage: otherPercentage, taskCount: otherTopics.length }]);
                 }
                 
-                return finalTopics.map(([topic, data], index) => {
-                  const topicData = data as any;
+                return finalTopics.map(([topic, topicData], index) => {
                   return (
                   <motion.div
                     key={topic}

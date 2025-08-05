@@ -7,6 +7,7 @@ import {
   getYesterdayStart,
   getCustomDateString,
 } from "../_utils/day-utils";
+import { type TimePeriod, type DayData } from "../analyze/_types/analytics-types";
 
 export interface TimeEntry {
   taskTitle: string;
@@ -20,13 +21,8 @@ export interface GroupedEntries {
   entries: TimeEntry[];
 }
 
-export type TimePeriod = "today" | "yesterday" | "week" | "month";
-
-export interface DayData {
-  date: string;
-  topics: { topic: string; time: number; color: string }[];
-  total: number;
-}
+// Re-export types for backward compatibility
+export type { TimePeriod, DayData } from "../analyze/_types/analytics-types";
 
 export interface UseAnalyzeDataReturn {
   filteredData: DayData[];

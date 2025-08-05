@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { useWeekNavigation } from "../_hooks/use-week-navigation";
+import { type TopicBreakdownItem } from "./_types/analytics-types";
 import { WeekBarChart } from "./week-bar-chart";
 import {
   formatTime,
@@ -167,11 +168,11 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
               Daily Activity
             </h4>
             <WeekBarChart
-              data={dailyData.map((day: any) => ({
+              data={dailyData.map(day => ({
                 date: day.date,
                 topics: Object.entries(day.topics).map(([topic, time]) => ({
                   topic,
-                  time,
+                  time: time as number,
                   color: getTopicColor(topic),
                 })),
                 total: day.totalMinutes,
@@ -201,13 +202,12 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
               <div className="space-y-3">
                 {(() => {
                   const sortedTopics = Object.entries(topicBreakdown).sort(
-                    ([, a], [, b]) =>
-                      (b as any).totalMinutes - (a as any).totalMinutes,
+                    ([, a], [, b]) => b.totalMinutes - a.totalMinutes,
                   );
 
                   // Filter topics with at least 5% or show top 5, whichever gives more meaningful data
                   const significantTopics = sortedTopics.filter(
-                    ([, data]) => (data as any).percentage >= 5,
+                    ([, data]) => data.percentage >= 5,
                   );
                   const topicsToShow =
                     significantTopics.length >= 3
@@ -222,19 +222,19 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
                     ([topic]) => !shownTopics.has(topic),
                   );
                   const otherTotal = otherTopics.reduce(
-                    (sum, [, data]) => sum + (data as any).totalMinutes,
+                    (sum, [, data]) => sum + data.totalMinutes,
                     0,
                   );
                   const otherPercentage = otherTopics.reduce(
-                    (sum, [, data]) => sum + (data as any).percentage,
+                    (sum, [, data]) => sum + data.percentage,
                     0,
                   );
 
-                  const finalTopics = [...topicsToShow];
+                  const finalTopics: Array<[string, TopicBreakdownItem]> = [...topicsToShow];
                   if (otherTopics.length > 0 && otherPercentage >= 2) {
                     finalTopics.push([
                       "Other",
-                      { totalMinutes: otherTotal, percentage: otherPercentage },
+                      { totalMinutes: otherTotal, percentage: otherPercentage, taskCount: otherTopics.length },
                     ]);
                   }
 
@@ -254,16 +254,16 @@ export function WeekNavigation({ dayStartHour }: WeekNavigationProps) {
                           className={`font-medium ${topic === "Other" ? "text-sm text-gray-500" : ""}`}
                         >
                           {topic === "Other"
-                            ? `Other (${(data as any).taskCount || "multiple"} topics)`
+                            ? `Other (${data.taskCount || "multiple"} topics)`
                             : topic}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="font-semibold">
-                          {formatTime((data as any).totalMinutes)}
+                          {formatTime(data.totalMinutes)}
                         </span>
                         <span className="ml-2 text-sm text-gray-500">
-                          ({(data as any).percentage.toFixed(1)}%)
+                          ({data.percentage.toFixed(1)}%)
                         </span>
                       </div>
                     </motion.div>

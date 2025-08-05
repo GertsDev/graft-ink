@@ -1,9 +1,12 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { type WeekAnalyticsData } from "../analyze/_types/analytics-types";
+
+// Types are now imported from centralized location
 
 export interface UseWeekNavigationReturn {
-  weekData: any;
+  weekData: WeekAnalyticsData | undefined;
   isLoading: boolean;
   weekOffset: number;
   navigateToWeek: (offset: number) => void;

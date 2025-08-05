@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "../../../components/ui/button";
-import { type TimePeriod } from "../_hooks/use-analyze-data";
+import { type TimePeriod } from "./_types/analytics-types";
 import { PERIOD_LABELS } from "../_utils/format-utils";
 
 interface AnalyzeControlsProps {

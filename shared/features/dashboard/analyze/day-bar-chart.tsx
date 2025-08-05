@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { type DayData } from "../_hooks/use-analyze-data";
+import { type DayData } from "./_types/analytics-types";
 import { getTopicColor } from "../_hooks/use-analyze-data";
 
 interface DayBarChartProps {

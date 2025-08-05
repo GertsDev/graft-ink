@@ -10,15 +10,10 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { formatTime } from "../_utils/format-utils";
+import { type Milestone } from "./_types/analytics-types";
 
 interface MonthlyMilestonesProps {
-  milestones: Array<{
-    _id: string;
-    type: string;
-    value: number;
-    achievedAt: number;
-    taskTitle?: string;
-  }>;
+  milestones: Milestone[];
 }
 
 export function MonthlyMilestones({ milestones }: MonthlyMilestonesProps) {
@@ -72,7 +67,7 @@ export function MonthlyMilestones({ milestones }: MonthlyMilestonesProps) {
     }
   };
 
-  const getMilestoneTitle = (milestone: any) => {
+  const getMilestoneTitle = (milestone: Milestone) => {
     switch (milestone.type) {
       case "time_milestone":
         return `${formatTime(milestone.value)} milestone`;
@@ -87,7 +82,7 @@ export function MonthlyMilestones({ milestones }: MonthlyMilestonesProps) {
     }
   };
 
-  const getMilestoneDescription = (milestone: any) => {
+  const getMilestoneDescription = (milestone: Milestone) => {
     const date = new Date(milestone.achievedAt).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

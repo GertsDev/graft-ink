@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { type MonthAnalyticsData } from "../analyze/_types/analytics-types";
+
+// Types are now imported from centralized location
 
 export interface UseMonthAnalyticsReturn {
-  monthData: any;
+  monthData: MonthAnalyticsData | undefined;
   isLoading: boolean;
   currentMonth: number;
   currentYear: number;
