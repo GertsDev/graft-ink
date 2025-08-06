@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Fira_Code } from "next/font/google";
+import { Geist, Geist_Mono, Barrio } from "next/font/google";
 import "./globals.css";
 
 export const geistSans = Geist({
@@ -11,7 +11,8 @@ export const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const firaCode = Fira_Code({
-  variable: "--font-fira-code",
+export const barrio = Barrio({
+  variable: "--font-barrio",
+  weight: "400",
   subsets: ["latin"],
 });

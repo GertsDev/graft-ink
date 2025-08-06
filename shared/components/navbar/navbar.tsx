@@ -140,7 +140,9 @@ const NavBar = () => {
             width={40}
             height={40}
           /> */}
-          <span className="text-2xl font-bold tracking-wide">GRAFT</span>
+          <span className="font-barrio text-4xl font-bold tracking-wide bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 bg-clip-text text-transparent hover:from-chart-2 hover:via-chart-3 hover:to-chart-4 transition-all duration-300">
+            GRAFT
+          </span>
         </div>
       </Link>
       <div className="hidden flex-1 justify-center md:flex">

@@ -1,30 +1,37 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { taskColorValidator } from "./utils";
 
 const applicationTables = {
   tasks: defineTable({
     title: v.string(),
     topic: v.optional(v.string()),
     subtopic: v.optional(v.string()),
+    color: v.optional(taskColorValidator),
     createdAt: v.number(),
     userId: v.id("users"),
   })
     .index("by_user", ["userId"])
-    .index("by_topic", ["topic"]),
+    .index("by_topic", ["topic"])
+    .index("by_color", ["color"])
+    .index("by_user_color", ["userId", "color"]),
 
   timeEntries: defineTable({
     taskId: v.id("tasks"),
     taskTitle: v.string(), // Denormalized
     taskTopic: v.optional(v.string()), // Denormalized
     taskSubtopic: v.optional(v.string()), // Denormalized
+    taskColor: v.optional(taskColorValidator), // Denormalized
     duration: v.number(),
     startedAt: v.number(),
     note: v.optional(v.string()),
     userId: v.id("users"),
   })
     .index("by_task", ["taskId"])
-    .index("by_user_date", ["userId", "startedAt"]),
+    .index("by_user_date", ["userId", "startedAt"])
+    .index("by_color", ["taskColor"])
+    .index("by_user_color", ["userId", "taskColor"]),
 
   plans: defineTable({
     date: v.string(),

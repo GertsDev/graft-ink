@@ -5,9 +5,8 @@
 
 @theme inline {
   --font-sans: Geist, sans-serif;
-
-  --font-mono: "Fira Code", "Geist Mono", monospace;
-
+  --font-barrio: "Barrio", cursive;
+  --font-mono: "Geist Mono", monospace;
   --font-serif: Georgia;
 
   --radius: 0.75rem;
@@ -197,6 +196,16 @@
   --analyze-4: oklch(0.7 0.12 200);
 
   --analyze-5: oklch(0.72 0.14 280);
+
+  --task-coral: oklch(0.6877 0.1759 27.33);
+  --task-amber: oklch(0.7762 0.1116 58.54);
+  --task-sunflower: oklch(0.8704 0.1294 90.14);
+  --task-mint: oklch(0.7555 0.1336 143.72);
+  --task-sky: oklch(0.7627 0.0895 188.54);
+  --task-ocean: oklch(0.7145 0.1091 228.82);
+  --task-lavender: oklch(0.7555 0.0436 162.48);
+  --task-plum: oklch(0.8288 0.1088 76.04);
+  --task-slate: oklch(0.7627 0.0895 228.82);
 
   --radius: 0.75rem;
 
