@@ -9,12 +9,15 @@ import { useTaskOperations } from "../_hooks/use-task-operations";
 import { useTimeDurations } from "../_hooks/use-time-durations";
 import { formatTime } from "../_utils/time-utils";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { TaskColorKey, TASK_COLORS } from "../../../../convex/utils";
+import { TaskColorPicker } from "./task-color-picker";
 
 interface TaskWithTime {
   _id: Id<"tasks">;
   _creationTime: number;
   title: string;
   topic?: string;
+  color?: TaskColorKey;
   createdAt: number;
   userId: Id<"users">;
   totalTime?: number;
@@ -138,7 +141,11 @@ export default function TaskCard({ task }: Props) {
       className="relative"
       style={{ pointerEvents: 'auto' }}
     >
-      <Card className="relative overflow-hidden transition-all duration-200 hover:shadow-lg">
+      <Card className={`relative overflow-hidden transition-all duration-200 hover:shadow-lg ${
+        task.color ? `border-l-4` : ''
+      }`}
+      style={task.color ? { borderLeftColor: TASK_COLORS[task.color].hex } : {}}
+      >
         {/* Celebration overlay */}
         <AnimatePresence>
           {showCelebration && (
@@ -199,6 +206,12 @@ export default function TaskCard({ task }: Props) {
           <div className="flex items-center gap-1 relative z-30">
             {isEditing ? (
               <>
+                <TaskColorPicker 
+                  taskId={task._id}
+                  currentColor={task.color}
+                  disabled={isLoading}
+                  size="sm"
+                />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -230,19 +243,27 @@ export default function TaskCard({ task }: Props) {
                 </Button>
               </>
             ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Edit task"
-                onClick={() => {
-                  console.log('Edit button clicked for task:', task.title);
-                  setIsEditing(true);
-                }}
-                disabled={isLoading}
-                className="transition-all duration-200 hover:scale-110 relative z-40"
-              >
-                <PenLine className="h-4 w-4 transition-colors duration-200" />
-              </Button>
+              <>
+                <TaskColorPicker 
+                  taskId={task._id}
+                  currentColor={task.color}
+                  disabled={isLoading}
+                  size="sm"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Edit task"
+                  onClick={() => {
+                    console.log('Edit button clicked for task:', task.title);
+                    setIsEditing(true);
+                  }}
+                  disabled={isLoading}
+                  className="transition-all duration-200 hover:scale-110 relative z-40"
+                >
+                  <PenLine className="h-4 w-4 transition-colors duration-200" />
+                </Button>
+              </>
             )}
           </div>
         </div>

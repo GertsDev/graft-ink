@@ -9,15 +9,18 @@ import {
 import { Button } from "../../../components/ui/button";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Coffee, Rocket, Brain, Target } from "lucide-react";
+import { TaskColorKey } from "../../../../convex/utils";
+import { TaskColorPicker } from "../components/task-color-picker";
 
 interface AddTaskFormProps {
-  onCreateTask: (title: string, topic?: string) => Promise<void>;
+  onCreateTask: (title: string, topic?: string, color?: TaskColorKey) => Promise<void>;
   onCancel: () => void;
 }
 
 export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTopic, setNewTaskTopic] = useState("");
+  const [selectedColor, setSelectedColor] = useState<TaskColorKey | undefined>(undefined);
   const [isCreating, setIsCreating] = useState(false);
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -57,7 +60,7 @@ export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
 
     setIsCreating(true);
     try {
-      await onCreateTask(newTaskTitle.trim(), newTaskTopic.trim() || undefined);
+      await onCreateTask(newTaskTitle.trim(), newTaskTopic.trim() || undefined, selectedColor);
       
       // Show success animation
       setShowSuccess(true);
@@ -66,6 +69,7 @@ export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
       setTimeout(() => {
         setNewTaskTitle("");
         setNewTaskTopic("");
+        setSelectedColor(undefined);
         setShowSuccess(false);
       }, 800);
       
@@ -80,6 +84,7 @@ export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
     onCancel();
     setNewTaskTitle("");
     setNewTaskTopic("");
+    setSelectedColor(undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -164,7 +169,6 @@ export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
             className="focus:ring-ring/20 focus:border-analyze-2 w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-analyze-2/20 focus:border-analyze-2"
             autoFocus
             whileFocus={{ scale: 1.02 }}
-            key={currentPlaceholder} // Re-render when placeholder changes
           />
           {/* Typing indicator */}
           {newTaskTitle.length > 0 && (
@@ -196,6 +200,26 @@ export function AddTaskForm({ onCreateTask, onCancel }: AddTaskFormProps) {
             whileFocus={{ scale: 1.02 }}
           />
         </motion.div>
+        
+        {/* Color picker section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="flex items-center gap-2"
+        >
+          <span className="text-sm text-muted-foreground font-medium">Color:</span>
+          <div className="flex-1">
+            <TaskColorPicker 
+              currentColor={selectedColor}
+              disabled={isCreating}
+              size="sm"
+              showLabel={false}
+              onColorChange={setSelectedColor}
+            />
+          </div>
+        </motion.div>
+        
         <motion.div 
           className="flex gap-2"
           initial={{ opacity: 0, y: 10 }}

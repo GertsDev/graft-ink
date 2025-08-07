@@ -9,12 +9,15 @@ import { useTaskOperations } from "../../features/dashboard/_hooks/use-task-oper
 import { useTimeDurations } from "../../features/dashboard/_hooks/use-time-durations";
 import { formatTime } from "../../features/dashboard/_utils/time-utils";
 import { Id } from "../../../convex/_generated/dataModel";
+import { TaskColorKey, TASK_COLORS } from "../../../convex/utils";
+import { TaskColorPicker } from "../../features/dashboard/components/task-color-picker";
 
 interface TaskWithTime {
   _id: Id<"tasks">;
   _creationTime: number;
   title: string;
   topic?: string;
+  color?: TaskColorKey;
   createdAt: number;
   userId: Id<"users">;
   totalTime?: number;
@@ -120,7 +123,11 @@ export default function StoryTaskCard({ task }: Props) {
       whileHover={{ y: -2 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg border-2 hover:border-analyze-2/30">
+      <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg border-2 hover:border-analyze-2/30 ${
+        task.color ? `border-l-4` : ''
+      }`}
+      style={task.color ? { borderLeftColor: TASK_COLORS[task.color].hex } : {}}
+      >
         {/* Growth stage background indicator */}
         <div className={`absolute top-0 left-0 w-full h-1 ${growth.bgColor.replace('bg-', 'bg-gradient-to-r from-')}-200 to-transparent opacity-60`} />
         
@@ -184,6 +191,12 @@ export default function StoryTaskCard({ task }: Props) {
             <div className="flex items-center gap-1">
               {isEditing ? (
                 <>
+                  <TaskColorPicker 
+                    taskId={task._id}
+                    currentColor={task.color}
+                    disabled={isLoading}
+                    size="sm"
+                  />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -215,16 +228,24 @@ export default function StoryTaskCard({ task }: Props) {
                   </Button>
                 </>
               ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Edit task"
-                  onClick={() => setIsEditing(true)}
-                  disabled={isLoading}
-                  className="transition-all duration-200 hover:scale-110"
-                >
-                  <PenLine className="h-4 w-4 transition-colors duration-200" />
-                </Button>
+                <>
+                  <TaskColorPicker 
+                    taskId={task._id}
+                    currentColor={task.color}
+                    disabled={isLoading}
+                    size="sm"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Edit task"
+                    onClick={() => setIsEditing(true)}
+                    disabled={isLoading}
+                    className="transition-all duration-200 hover:scale-110"
+                  >
+                    <PenLine className="h-4 w-4 transition-colors duration-200" />
+                  </Button>
+                </>
               )}
             </div>
           </div>

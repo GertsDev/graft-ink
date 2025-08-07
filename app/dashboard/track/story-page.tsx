@@ -10,6 +10,7 @@ import { AddTaskForm } from "../../../shared/features/dashboard/track/add-task-f
 import { StoryTasksGrid } from "../../../shared/features/dashboard/track/story-tasks-grid";
 import { LoadingSkeleton } from "../../../shared/features/dashboard/track/loading-skeleton";
 import { CelebrationMoments } from "../../../shared/components/visual-stories/celebration-moments";
+import { TaskColorKey } from "../../../convex/utils";
 
 export default function StoryTrackPage() {
   const { tasks, totalToday, isLoading } = useDashboardData();
@@ -25,8 +26,8 @@ export default function StoryTrackPage() {
   // Track previous state for celebrations
   const [prevTotalToday, setPrevTotalToday] = useState(totalToday);
 
-  const handleCreateTask = async (title: string, topic?: string) => {
-    await createTask(title, topic);
+  const handleCreateTask = async (title: string, topic?: string, color?: TaskColorKey) => {
+    await createTask(title, topic, color);
     setShowAddTask(false);
     
     // Celebrate first task creation

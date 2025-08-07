@@ -3,6 +3,7 @@
 import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { TaskColorKey } from "../../../../convex/utils";
 
 export function useTaskOperations() {
   const addTime = useMutation(api.timeEntries.add);
@@ -15,12 +16,16 @@ export function useTaskOperations() {
       return addTime({ taskId, duration, note });
     },
 
-    createTask: async (title: string, topic?: string) => {
-      return createTask({ title, topic });
+    createTask: async (title: string, topic?: string, color?: TaskColorKey) => {
+      return createTask({ title, topic, color });
     },
 
     updateTask: async (taskId: Id<"tasks">, title: string, topic?: string) => {
       return updateTask({ taskId, title, topic });
+    },
+
+    updateTaskColor: async (taskId: Id<"tasks">, color?: TaskColorKey) => {
+      return updateTask({ taskId, color });
     },
 
     deleteTask: async (taskId: Id<"tasks">) => {

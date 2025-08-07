@@ -8,6 +8,7 @@ import { AddTaskButton } from "../../../shared/features/dashboard/track/add-task
 import { AddTaskForm } from "../../../shared/features/dashboard/track/add-task-form";
 import { TasksGrid } from "../../../shared/features/dashboard/track/tasks-grid";
 import { LoadingSkeleton } from "../../../shared/features/dashboard/track/loading-skeleton";
+import { TaskColorKey } from "../../../convex/utils";
 
 export default function TrackPage() {
   const { tasks, totalToday, isLoading } = useDashboardData();
@@ -15,8 +16,8 @@ export default function TrackPage() {
   const { createTask } = useTaskOperations();
   const [showAddTask, setShowAddTask] = useState(false);
 
-  const handleCreateTask = async (title: string, topic?: string) => {
-    await createTask(title, topic);
+  const handleCreateTask = async (title: string, topic?: string, color?: TaskColorKey) => {
+    await createTask(title, topic, color);
     setShowAddTask(false);
   };
 

@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { taskColorValidator } from "./utils";
 
 // Helper function to check if timestamp is within the user's "today" (custom day boundary)
 function isToday(timestamp: number, todayStart: number): boolean {
@@ -60,6 +61,7 @@ export const getDashboardData = query({
         title: v.string(),
         topic: v.optional(v.string()),
         subtopic: v.optional(v.string()),
+        color: v.optional(taskColorValidator),
         createdAt: v.number(),
         userId: v.id("users"),
         totalTime: v.number(),

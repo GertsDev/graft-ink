@@ -1,6 +1,6 @@
 import { internalMutation, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { getUserOrThrow, taskColorValidator } from "./utils";
+import { getUserOrThrow, taskColorValidator, TaskColorKey } from "./utils";
 
 // Create a new task
 export const createTask = mutation({
@@ -46,7 +46,7 @@ export const updateTask = mutation({
     title: v.optional(v.string()),
     topic: v.optional(v.string()),
     subtopic: v.optional(v.string()),
-    color: v.optional(v.optional(taskColorValidator)), // double optional allows setting to undefined
+    color: v.optional(v.union(taskColorValidator, v.null())), // allows setting to null to clear
   },
 
   handler: async (ctx, args) => {
@@ -60,13 +60,16 @@ export const updateTask = mutation({
       title: string;
       topic?: string;
       subtopic?: string;
-      color?: string;
+      color?: TaskColorKey | undefined;
     }> = {};
     
     if (args.title !== undefined) updates.title = args.title;
     if (args.topic !== undefined) updates.topic = args.topic;
     if (args.subtopic !== undefined) updates.subtopic = args.subtopic;
-    if (args.color !== undefined) updates.color = args.color;
+    if (args.color !== undefined) {
+      // Normalize null to undefined for consistency with schema
+      updates.color = args.color === null ? undefined : args.color;
+    }
 
     // Update the task
     await ctx.db.patch(args.taskId, updates);
@@ -92,7 +95,7 @@ export const updateTask = mutation({
               taskTitle: string;
               taskTopic?: string;
               taskSubtopic?: string;
-              taskColor?: string;
+              taskColor?: TaskColorKey | undefined;
             }> = {};
             
             if (args.title !== undefined) entryUpdates.taskTitle = updatedTask.title;
