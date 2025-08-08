@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PenLine, Trash2, Check, Sparkles, Zap, Trophy } from "lucide-react";
+import { PenLine, Trash2, Check, Sparkles, Zap, Trophy, Pin } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
@@ -18,6 +18,7 @@ interface TaskWithTime {
   title: string;
   topic?: string;
   color?: TaskColorKey;
+  pinned?: boolean;
   createdAt: number;
   userId: Id<"users">;
   totalTime?: number;
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export default function TaskCard({ task }: Props) {
-  const { addTime, updateTask, deleteTask } = useTaskOperations();
+  const { addTime, updateTask, deleteTask, toggleTaskPin } = useTaskOperations();
   const [timeDurations, setTimeDurations] = useTimeDurations();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -118,6 +119,14 @@ export default function TaskCard({ task }: Props) {
     } catch (error) {
       console.error("Failed to delete task:", error);
       setIsLoading(false);
+    }
+  };
+
+  const handleTogglePin = async () => {
+    try {
+      await toggleTaskPin(task._id, !task.pinned);
+    } catch (error) {
+      console.error("Failed to toggle pin:", error);
     }
   };
 
@@ -217,6 +226,18 @@ export default function TaskCard({ task }: Props) {
             <div className="relative z-30 flex items-center gap-1">
               {isEditing ? (
                 <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={task.pinned ? "Unpin task" : "Pin task"}
+                    onClick={handleTogglePin}
+                    disabled={isLoading}
+                    className={`transition-all duration-200 hover:scale-110 ${
+                      task.pinned ? "text-analyze-1 hover:text-analyze-1/80" : "hover:text-analyze-1"
+                    }`}
+                  >
+                    <Pin className={`h-4 w-4 transition-colors duration-200 ${task.pinned ? "fill-current" : ""}`} />
+                  </Button>
                   <TaskColorPicker
                     taskId={task._id}
                     currentColor={task.color}
@@ -256,6 +277,18 @@ export default function TaskCard({ task }: Props) {
                 </>
               ) : (
                 <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={task.pinned ? "Unpin task" : "Pin task"}
+                    onClick={handleTogglePin}
+                    disabled={isLoading}
+                    className={`relative z-40 transition-all duration-200 hover:scale-110 ${
+                      task.pinned ? "text-analyze-1 hover:text-analyze-1/80" : "hover:text-analyze-1"
+                    }`}
+                  >
+                    <Pin className={`h-4 w-4 transition-colors duration-200 ${task.pinned ? "fill-current" : ""}`} />
+                  </Button>
                   <TaskColorPicker
                     taskId={task._id}
                     currentColor={task.color}

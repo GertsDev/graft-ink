@@ -45,11 +45,12 @@ export const getUserSettings = query({
   args: {},
   returns: v.object({
     dayStartHour: v.number(),
+    dailyGoalMinutes: v.number(),
   }),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
-      return { dayStartHour: 0 }; // Default to midnight
+      return { dayStartHour: 0, dailyGoalMinutes: 480 }; // Defaults when unauthenticated
     }
 
     const settings = await ctx.db
@@ -59,6 +60,7 @@ export const getUserSettings = query({
 
     return {
       dayStartHour: settings?.dayStartHour ?? 0, // Default to midnight
+      dailyGoalMinutes: settings?.dailyGoalMinutes ?? 480, // Default 8h
     };
   },
 });
@@ -69,6 +71,7 @@ export const getUserSettings = query({
 export const updateUserSettings = mutation({
   args: {
     dayStartHour: v.number(),
+    dailyGoalMinutes: v.optional(v.number()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -88,12 +91,15 @@ export const updateUserSettings = mutation({
     if (existingSettings) {
       await ctx.db.patch(existingSettings._id, {
         dayStartHour: args.dayStartHour,
+        dailyGoalMinutes:
+          args.dailyGoalMinutes ?? existingSettings.dailyGoalMinutes ?? 480,
         updatedAt: Date.now(),
       });
     } else {
       await ctx.db.insert("userSettings", {
         userId,
         dayStartHour: args.dayStartHour,
+        dailyGoalMinutes: args.dailyGoalMinutes ?? 480,
         createdAt: Date.now(),
       });
     }

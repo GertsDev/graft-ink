@@ -25,6 +25,7 @@ export function useDashboardData() {
     tasks: data?.tasks ?? [],
     timeEntries: data?.timeEntries ?? {},
     totalToday: data?.totalToday ?? 0,
+    dailyGoalMinutes: userSettings?.dailyGoalMinutes ?? 480,
     isLoading: data === undefined || userSettings === undefined,
   };
 }

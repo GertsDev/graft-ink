@@ -11,12 +11,16 @@ import { LoadingSkeleton } from "../../../shared/features/dashboard/track/loadin
 import { TaskColorKey } from "../../../convex/utils";
 
 export default function TrackPage() {
-  const { tasks, totalToday, isLoading } = useDashboardData();
+  const { tasks, totalToday, dailyGoalMinutes, isLoading } = useDashboardData();
 
   const { createTask } = useTaskOperations();
   const [showAddTask, setShowAddTask] = useState(false);
 
-  const handleCreateTask = async (title: string, topic?: string, color?: TaskColorKey) => {
+  const handleCreateTask = async (
+    title: string,
+    topic?: string,
+    color?: TaskColorKey,
+  ) => {
     await createTask(title, topic, color);
     setShowAddTask(false);
   };
@@ -52,7 +56,11 @@ export default function TrackPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
-      <DailySummary totalToday={totalToday} tasks={tasks} />
+      <DailySummary
+        totalToday={totalToday}
+        tasks={tasks}
+        targetMinutes={dailyGoalMinutes}
+      />
 
       <AddTaskButton
         onAddTask={() => setShowAddTask(true)}
