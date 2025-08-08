@@ -10,9 +10,14 @@ import { Flame, Target, Zap, Trophy, Star } from "lucide-react";
 interface DailySummaryProps {
   totalToday: number;
   tasks: (Doc<"tasks"> & { todayTime?: number })[];
+  targetMinutes?: number;
 }
 
-export function DailySummary({ totalToday, tasks }: DailySummaryProps) {
+export function DailySummary({
+  totalToday,
+  tasks,
+  targetMinutes = 480,
+}: DailySummaryProps) {
   const [displayTime, setDisplayTime] = useState(0);
   const [showMotivation, setShowMotivation] = useState(false);
 
@@ -38,8 +43,8 @@ export function DailySummary({ totalToday, tasks }: DailySummaryProps) {
     return () => clearInterval(timer);
   }, [totalToday]);
 
-  // Progress calculation (3 hours = 100%)
-  const progressPercent = Math.min(100, (totalToday / 180) * 100);
+  // Progress calculation (targetMinutes = 100%)
+  const progressPercent = Math.min(100, (totalToday / targetMinutes) * 100);
 
   // Motivational messages based on progress
   const getMotivationalMessage = () => {
@@ -61,7 +66,7 @@ export function DailySummary({ totalToday, tasks }: DailySummaryProps) {
         icon: Flame,
         color: "text-analyze-2",
       };
-    if (totalToday >= 180)
+    if (totalToday >= targetMinutes)
       return {
         text: "Daily goal crushed!",
         icon: Target,
@@ -197,7 +202,7 @@ export function DailySummary({ totalToday, tasks }: DailySummaryProps) {
               >
                 {Math.round(progressPercent)}% to goal
               </motion.span>
-              <span>3h</span>
+              <span>{Math.floor(targetMinutes / 60)}h</span>
             </div>
           </div>
         </CardContent>

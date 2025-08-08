@@ -13,12 +13,17 @@ import { CelebrationMoments } from "../../../shared/components/visual-stories/ce
 import { TaskColorKey } from "../../../convex/utils";
 
 export default function StoryTrackPage() {
-  const { tasks, totalToday, isLoading } = useDashboardData();
+  const { tasks, totalToday, dailyGoalMinutes, isLoading } = useDashboardData();
   const { createTask } = useTaskOperations();
-  
+
   const [showAddTask, setShowAddTask] = useState(false);
   const [celebration, setCelebration] = useState<{
-    trigger: "timeAdded" | "taskCompleted" | "streak" | "milestone" | "goalReached";
+    trigger:
+      | "timeAdded"
+      | "taskCompleted"
+      | "streak"
+      | "milestone"
+      | "goalReached";
     value?: number;
     milestone?: string;
   } | null>(null);
@@ -26,15 +31,19 @@ export default function StoryTrackPage() {
   // Track previous state for celebrations
   const [prevTotalToday, setPrevTotalToday] = useState(totalToday);
 
-  const handleCreateTask = async (title: string, topic?: string, color?: TaskColorKey) => {
+  const handleCreateTask = async (
+    title: string,
+    topic?: string,
+    color?: TaskColorKey,
+  ) => {
     await createTask(title, topic, color);
     setShowAddTask(false);
-    
+
     // Celebrate first task creation
     if (tasks.length === 0) {
       setCelebration({
         trigger: "taskCompleted",
-        milestone: "First task created! Your journey begins..."
+        milestone: "First task created! Your journey begins...",
       });
     }
   };
@@ -50,31 +59,32 @@ export default function StoryTrackPage() {
       const addedTime = totalToday - prevTotalToday;
       setCelebration({
         trigger: "timeAdded",
-        value: addedTime
+        value: addedTime,
       });
     }
 
-    // Goal reached celebration (3 hour target)
-    if (totalToday >= 180 && prevTotalToday < 180) {
+    // Goal reached celebration (user-configurable)
+    if (totalToday >= dailyGoalMinutes && prevTotalToday < dailyGoalMinutes) {
       setCelebration({
         trigger: "goalReached",
-        milestone: "Daily goal conquered!"
+        milestone: "Daily goal conquered!",
       });
     }
 
     // Milestone celebrations
     const milestones = [60, 120, 240, 360]; // 1h, 2h, 4h, 6h
-    const currentMilestone = milestones.find(m => totalToday >= m && prevTotalToday < m);
+    const currentMilestone = milestones.find(
+      (m) => totalToday >= m && prevTotalToday < m,
+    );
     if (currentMilestone) {
       setCelebration({
         trigger: "milestone",
-        milestone: `${Math.floor(currentMilestone / 60)} hour${currentMilestone >= 120 ? 's' : ''} of focused work!`
+        milestone: `${Math.floor(currentMilestone / 60)} hour${currentMilestone >= 120 ? "s" : ""} of focused work!`,
       });
     }
 
     setPrevTotalToday(totalToday);
-  }, [totalToday, prevTotalToday]);
-
+  }, [totalToday, prevTotalToday, dailyGoalMinutes]);
 
   // Global shortcut for Alt+T to open add task form
   useEffect(() => {
@@ -115,7 +125,11 @@ export default function StoryTrackPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <StoryDailySummary totalToday={totalToday} tasks={tasks} />
+          <StoryDailySummary
+            totalToday={totalToday}
+            tasks={tasks}
+            targetMinutes={dailyGoalMinutes}
+          />
         </motion.div>
 
         {/* Add task button with story context */}
@@ -154,8 +168,8 @@ export default function StoryTrackPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <StoryTasksGrid 
-            tasks={tasks} 
+          <StoryTasksGrid
+            tasks={tasks}
             onAddTask={() => setShowAddTask(true)}
           />
         </motion.div>

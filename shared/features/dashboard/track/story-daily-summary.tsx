@@ -10,12 +10,12 @@ interface StoryDailySummaryProps {
   targetMinutes?: number;
 }
 
-export function StoryDailySummary({ 
-  totalToday, 
-  tasks, 
-  targetMinutes = 180 
+export function StoryDailySummary({
+  totalToday,
+  tasks,
+  targetMinutes = 480,
 }: StoryDailySummaryProps) {
-  const tasksWithTime = tasks.filter(t => (t.todayTime ?? 0) > 0);
+  const tasksWithTime = tasks.filter((t) => (t.todayTime ?? 0) > 0);
 
   return (
     <ProgressJourney

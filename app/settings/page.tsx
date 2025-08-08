@@ -26,13 +26,21 @@ export default function SettingsPage() {
   const userSettings = useQuery(api.users.getUserSettings);
   const updateSettings = useMutation(api.users.updateUserSettings);
   const [dayStartHour, setDayStartHour] = useState<number | undefined>();
+  const [dailyGoalMinutes, setDailyGoalMinutes] = useState<
+    number | undefined
+  >();
 
-  // Set initial value when data loads
+  // Set initial values when data loads
   const effectiveDayStartHour = dayStartHour ?? userSettings?.dayStartHour ?? 0;
+  const effectiveDailyGoal =
+    dailyGoalMinutes ?? userSettings?.dailyGoalMinutes ?? 480;
 
   const handleSave = async () => {
     try {
-      await updateSettings({ dayStartHour: effectiveDayStartHour });
+      await updateSettings({
+        dayStartHour: effectiveDayStartHour,
+        dailyGoalMinutes: effectiveDailyGoal,
+      });
       toast.success("Settings saved successfully!");
     } catch (error) {
       toast.error("Failed to save settings");
@@ -112,11 +120,44 @@ export default function SettingsPage() {
               </span>
               {` the next day.`}
             </p>
+            <p className="mt-2 transition-colors duration-200">
+              <strong>Daily goal:</strong>{" "}
+              <span className="font-mono">
+                {Math.round((userSettings?.dailyGoalMinutes ?? 480) / 60)}h
+              </span>
+            </p>
+          </div>
+
+          {/* Daily goal selector */}
+          <div className="space-y-2 pt-4">
+            <label className="text-sm font-medium">Daily goal:</label>
+            <Select
+              value={Math.round(effectiveDailyGoal / 60).toString()}
+              onValueChange={(value) =>
+                setDailyGoalMinutes(parseInt(value) * 60)
+              }
+            >
+              <SelectTrigger className="hover:ring-ring/20 w-full transition-all duration-200 hover:ring-2">
+                <SelectValue placeholder="Select daily goal">
+                  {Math.round(effectiveDailyGoal / 60)}h
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {[2, 3, 4, 6, 8, 10, 12].map((h) => (
+                  <SelectItem key={h} value={h.toString()}>
+                    {h}h
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button
             onClick={handleSave}
-            disabled={effectiveDayStartHour === userSettings?.dayStartHour}
+            disabled={
+              effectiveDayStartHour === userSettings?.dayStartHour &&
+              effectiveDailyGoal === (userSettings?.dailyGoalMinutes ?? 480)
+            }
             className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
           >
             Save Settings
