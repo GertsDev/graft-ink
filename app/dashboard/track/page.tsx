@@ -55,7 +55,7 @@ export default function TrackPage() {
   }
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-5xl flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-4 pb-4">
       {/* Fixed header section */}
       <div className="flex-shrink-0 space-y-6">
         <DailySummary
@@ -78,7 +78,7 @@ export default function TrackPage() {
       </div>
 
       {/* Scrollable tasks section */}
-      <div className="flex-1 overflow-y-auto pt-6">
+      <div className="min-h-0 flex-1 overflow-y-auto pt-6">
         <TasksGrid tasks={tasks} />
       </div>
     </div>

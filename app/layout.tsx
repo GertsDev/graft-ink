@@ -23,7 +23,7 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning={true}>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ThemeProvider
             attribute="class"
@@ -33,7 +33,7 @@ export default function RootLayout({
           >
             <ConvexClientProvider>
               <NavBar />
-              {children}
+              <main className="flex min-h-0 flex-1 flex-col">{children}</main>
             </ConvexClientProvider>
           </ThemeProvider>
         </body>

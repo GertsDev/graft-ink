@@ -31,5 +31,5 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, [router]);
 
-  return <div className="min-h-screen w-full py-5">{children}</div>;
+  return <div className="min-h-full w-full py-5">{children}</div>;
 }
