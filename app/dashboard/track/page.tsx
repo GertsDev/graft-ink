@@ -55,26 +55,32 @@ export default function TrackPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4">
-      <DailySummary
-        totalToday={totalToday}
-        tasks={tasks}
-        targetMinutes={dailyGoalMinutes}
-      />
-
-      <AddTaskButton
-        onAddTask={() => setShowAddTask(true)}
-        disabled={showAddTask}
-      />
-
-      {showAddTask && (
-        <AddTaskForm
-          onCreateTask={handleCreateTask}
-          onCancel={handleCancelTask}
+    <div className="mx-auto flex h-screen w-full max-w-5xl flex-col px-4 py-6">
+      {/* Fixed header section */}
+      <div className="flex-shrink-0 space-y-6">
+        <DailySummary
+          totalToday={totalToday}
+          tasks={tasks}
+          targetMinutes={dailyGoalMinutes}
         />
-      )}
 
-      <TasksGrid tasks={tasks} />
+        <AddTaskButton
+          onAddTask={() => setShowAddTask(true)}
+          disabled={showAddTask}
+        />
+
+        {showAddTask && (
+          <AddTaskForm
+            onCreateTask={handleCreateTask}
+            onCancel={handleCancelTask}
+          />
+        )}
+      </div>
+
+      {/* Scrollable tasks section */}
+      <div className="flex-1 overflow-y-auto pt-6">
+        <TasksGrid tasks={tasks} />
+      </div>
     </div>
   );
 }
