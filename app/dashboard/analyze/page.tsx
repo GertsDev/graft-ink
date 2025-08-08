@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { motion } from "motion/react";
 import {
   Card,
   CardContent,
@@ -17,15 +16,13 @@ import {
   formatDate,
   PERIOD_LABELS,
 } from "../../../shared/features/dashboard/_utils/format-utils";
-import { DayBarChart } from "../../../shared/features/dashboard/analyze/day-bar-chart";
+import { StoryChart } from "../../../shared/components/visual-stories/story-chart";
+import { EmptyStateStory } from "../../../shared/components/visual-stories/empty-state-story";
 import { AnalyzeControls } from "../../../shared/features/dashboard/analyze/analyze-controls";
 import { LoadingState } from "../../../shared/features/dashboard/analyze/loading-state";
-import { MonthAnalytics } from "../../../shared/features/dashboard/analyze/month-analytics";
-import { WeekNavigation } from "../../../shared/features/dashboard/analyze/week-navigation";
 
-export default function AnalyzePage() {
+export default function StoryAnalyzePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
-  const userSettings = useQuery(api.users.getUserSettings);
   const { filteredData, maxTime, isLoading, dayStartHour } =
     useAnalyzeData(selectedPeriod);
 
@@ -34,74 +31,59 @@ export default function AnalyzePage() {
     return formatDate(dateString, selectedPeriod, dayStartHour);
   };
 
-  if (isLoading || !userSettings) {
+  if (isLoading) {
     return <LoadingState />;
   }
 
-  // Render month analytics separately
-  if (selectedPeriod === "month") {
-    return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-light">Analytics</h1>
-          <AnalyzeControls
-            selectedPeriod={selectedPeriod}
-            onPeriodChange={setSelectedPeriod}
-          />
-        </div>
-        <MonthAnalytics dayStartHour={userSettings.dayStartHour} />
-      </div>
-    );
-  }
-
-  // Enhanced week view with navigation
-  if (selectedPeriod === "week") {
-    return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-light">Analytics</h1>
-          <AnalyzeControls
-            selectedPeriod={selectedPeriod}
-            onPeriodChange={setSelectedPeriod}
-          />
-        </div>
-        <WeekNavigation dayStartHour={userSettings.dayStartHour} />
-      </div>
-    );
-  }
-
-  // Original day/today/yesterday view
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
-      {/* Time Visualization */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-lg font-light">
-              Time Spent by Topic - {PERIOD_LABELS[selectedPeriod]}
-            </h3>
-            <AnalyzeControls
-              selectedPeriod={selectedPeriod}
-              onPeriodChange={setSelectedPeriod}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {filteredData.length === 0 ? (
-            <div className="py-8 text-center text-gray-500">
-              No time entries found for this period. Start tracking your time to
-              see analytics here.
+    <motion.div
+      className="mx-auto flex w-full flex-col gap-6 px-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      {/* Enhanced time visualization with storytelling */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+      >
+        <Card className="border-analyze-1/10 border-2 shadow-lg">
+          <CardHeader>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="mb-1 text-lg font-light">
+                  Your Productivity Story - {PERIOD_LABELS[selectedPeriod]}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Discover patterns, celebrate progress, and unlock insights
+                  from your focused work
+                </p>
+              </div>
+              <AnalyzeControls
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={setSelectedPeriod}
+              />
             </div>
-          ) : (
-            <DayBarChart
-              data={filteredData}
-              formatTime={formatTime}
-              formatDate={formatDateWithSettings}
-              maxTime={maxTime}
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+          </CardHeader>
+          <CardContent>
+            {filteredData.length === 0 ? (
+              <EmptyStateStory
+                type="timeEntries"
+                actionLabel="Start Tracking Time"
+              />
+            ) : (
+              <StoryChart
+                data={filteredData}
+                formatTime={formatTime}
+                formatDate={formatDateWithSettings}
+                maxTime={maxTime}
+                type={selectedPeriod === "week" ? "week" : "day"}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -55,7 +55,7 @@ export default function TrackPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-4 pb-4">
+    <div className="flex min-h-full w-full flex-col pb-4">
       {/* Fixed header section */}
       <div className="flex-shrink-0 space-y-6">
         <DailySummary

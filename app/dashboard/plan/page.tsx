@@ -41,9 +41,8 @@ export default function PlanPage() {
     debouncedSave(newContent, dateString);
   };
 
-
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col px-4">
+    <div className="flex w-full flex-col">
       {/* Plan Content */}
       <Card className="flex-1">
         <CardHeader>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import { formatTime } from "../_utils/time-utils";
 import { type Doc } from "../../../../convex/_generated/dataModel";
@@ -20,27 +20,38 @@ export function DailySummary({
 }: DailySummaryProps) {
   const [displayTime, setDisplayTime] = useState(0);
   const [showMotivation, setShowMotivation] = useState(false);
+  const previousTotalRef = useRef(0);
 
   // Animate the time counter on mount and when it changes
   useEffect(() => {
+    const start = previousTotalRef.current;
+    const end = totalToday;
+    if (start === end) return;
+
+    setShowMotivation(false);
+
     const duration = 1000; // 1 second animation
     const steps = 50;
-    const increment = totalToday / steps;
-    let current = 0;
+    const increment = (end - start) / steps;
+    let current = start;
 
     const timer = setInterval(() => {
       current += increment;
-      if (current >= totalToday) {
-        setDisplayTime(totalToday);
+      const reachedTarget = increment >= 0 ? current >= end : current <= end;
+      if (reachedTarget) {
+        setDisplayTime(end);
         clearInterval(timer);
+        previousTotalRef.current = end;
         // Show motivation message after animation
         setTimeout(() => setShowMotivation(true), 200);
       } else {
-        setDisplayTime(Math.floor(current));
+        setDisplayTime(Math.round(current));
       }
     }, duration / steps);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+    };
   }, [totalToday]);
 
   // Progress calculation (targetMinutes = 100%)
