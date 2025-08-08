@@ -28,6 +28,10 @@ export function useTaskOperations() {
       return updateTask({ taskId, color: color ?? null });
     },
 
+    toggleTaskPin: async (taskId: Id<"tasks">, pinned: boolean) => {
+      return updateTask({ taskId, pinned });
+    },
+
     deleteTask: async (taskId: Id<"tasks">) => {
       return deleteTask({ taskId });
     },

@@ -9,13 +9,15 @@ const applicationTables = {
     topic: v.optional(v.string()),
     subtopic: v.optional(v.string()),
     color: v.optional(taskColorValidator),
+    pinned: v.optional(v.boolean()),
     createdAt: v.number(),
     userId: v.id("users"),
   })
     .index("by_user", ["userId"])
     .index("by_topic", ["topic"])
     .index("by_color", ["color"])
-    .index("by_user_color", ["userId", "color"]),
+    .index("by_user_color", ["userId", "color"])
+    .index("by_user_pinned", ["userId", "pinned"]),
 
   timeEntries: defineTable({
     taskId: v.id("tasks"),

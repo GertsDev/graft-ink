@@ -47,6 +47,7 @@ export const updateTask = mutation({
     topic: v.optional(v.string()),
     subtopic: v.optional(v.string()),
     color: v.optional(v.union(taskColorValidator, v.null())), // allows setting to null to clear
+    pinned: v.optional(v.boolean()),
   },
 
   handler: async (ctx, args) => {
@@ -61,6 +62,7 @@ export const updateTask = mutation({
       topic?: string;
       subtopic?: string;
       color?: TaskColorKey | undefined;
+      pinned?: boolean;
     }> = {};
     
     if (args.title !== undefined) updates.title = args.title;
@@ -70,6 +72,7 @@ export const updateTask = mutation({
       // Normalize null to undefined for consistency with schema
       updates.color = args.color === null ? undefined : args.color;
     }
+    if (args.pinned !== undefined) updates.pinned = args.pinned;
 
     // Update the task
     await ctx.db.patch(args.taskId, updates);

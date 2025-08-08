@@ -62,6 +62,7 @@ export const getDashboardData = query({
         topic: v.optional(v.string()),
         subtopic: v.optional(v.string()),
         color: v.optional(taskColorValidator),
+        pinned: v.optional(v.boolean()),
         createdAt: v.number(),
         userId: v.id("users"),
         totalTime: v.number(),

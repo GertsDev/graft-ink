@@ -19,7 +19,12 @@ export function TasksGrid({ tasks }: TasksGridProps) {
   const [showHint, setShowHint] = useState(false);
   
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => b._creationTime - a._creationTime);
+    return [...tasks].sort((a, b) => {
+      // Pinned tasks first, then by creation time (newest first)
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return b._creationTime - a._creationTime;
+    });
   }, [tasks]);
   
   // Rotate empty state messages
