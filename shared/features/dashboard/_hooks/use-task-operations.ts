@@ -25,7 +25,7 @@ export function useTaskOperations() {
     },
 
     updateTaskColor: async (taskId: Id<"tasks">, color?: TaskColorKey) => {
-      return updateTask({ taskId, color });
+      return updateTask({ taskId, color: color ?? null });
     },
 
     deleteTask: async (taskId: Id<"tasks">) => {
